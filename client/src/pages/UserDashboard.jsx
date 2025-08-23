@@ -28,12 +28,10 @@ const UserDashboard = () => {
       setReports((prevReports) => {
         const exists = prevReports.find((r) => r._id === updatedReport._id);
         if (exists) {
-          // replace old with updated
           return prevReports.map((r) =>
             r._id === updatedReport._id ? updatedReport : r
           );
         } else {
-          // new report added
           return [updatedReport, ...prevReports];
         }
       });
@@ -51,7 +49,6 @@ const UserDashboard = () => {
     };
   }, []);
 
-  // 🔑 Recalculate stats whenever reports change
   useEffect(() => {
     const newStats = {
       total: reports.length,

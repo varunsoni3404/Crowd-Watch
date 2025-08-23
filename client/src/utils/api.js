@@ -58,6 +58,7 @@ export const reportsAPI = {
   getUserReports: (params) => api.get('/reports/my-reports', { params }),
   getReportById: (id) => api.get(`/reports/${id}`),
   updateReportStatus: (id, data) => api.put(`/reports/${id}/status`, data),
+  deleteReport: (id)=>api.delete(`/reports/${id}`)
 };
 
 // Admin API calls

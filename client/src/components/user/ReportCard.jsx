@@ -1,5 +1,6 @@
 // src/components/user/ReportCard.js
 import React from 'react';
+import { reportsAPI } from '../../utils/api';
 
 const getStatusColor = (status) => {
   switch (status) {
@@ -16,7 +17,7 @@ const getStatusColor = (status) => {
 
 const getCategoryIcon = (category) => {
   const iconClass = "w-5 h-5";
-  
+
   switch (category) {
     case 'Potholes':
       return (
@@ -71,6 +72,19 @@ const formatDate = (dateString) => {
 const ReportCard = ({ report }) => {
   const statusColorClass = getStatusColor(report.status);
 
+  const onDelete = async (reportId) => {
+    if (window.confirm('Are you sure you want to delete this report?')) {
+      try {
+        await reportsAPI.deleteReport(reportId);
+        showSuccess('Report deleted successfully');
+
+      } catch (error) {
+        console.error('Error deleting report:', error);
+        showError('Failed to delete report');
+      }
+    }
+  };
+
   return (
     <div className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow duration-200">
       <div className="flex items-start justify-between">
@@ -81,25 +95,25 @@ const ReportCard = ({ report }) => {
             </div>
             <h3 className="text-lg font-semibold text-gray-900">{report.title}</h3>
           </div>
-          
+
           <div className="flex items-center space-x-4 mb-3">
             <span className={`px-2 py-1 text-xs font-medium rounded-full border ${statusColorClass}`}>
               {report.status}
             </span>
             <span className="text-sm text-gray-500">{report.category}</span>
           </div>
-          
+
           <p className="text-gray-700 text-sm mb-3 line-clamp-2">
             {report.description}
           </p>
-          
+
           <div className="flex items-center justify-between text-sm text-gray-500">
             <span>Submitted: {formatDate(report.createdAt)}</span>
             {report.statusUpdatedAt && report.statusUpdatedAt !== report.createdAt && (
               <span>Updated: {formatDate(report.statusUpdatedAt)}</span>
             )}
           </div>
-          
+
           {report.adminNotes && (
             <div className="mt-3 p-2 bg-blue-50 border-l-4 border-blue-400">
               <p className="text-sm text-blue-800">
@@ -108,7 +122,7 @@ const ReportCard = ({ report }) => {
             </div>
           )}
         </div>
-        
+
         {report.photoUrl && (
           <div className="ml-4 flex-shrink-0">
             <img
@@ -128,19 +142,44 @@ const ReportCard = ({ report }) => {
           </div>
         )} */}
       </div>
-      
+
       {report.location && (
         <div className="mt-3 pt-3 border-t border-gray-200">
-          <div className="flex items-center text-sm text-gray-500">
-            <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-            </svg>
-            {report.location.address || 
-             `${report.location.latitude.toFixed(4)}, ${report.location.longitude.toFixed(4)}`}
+            <div className="flex items-center justify-between text-sm text-gray-500">
+            <div className="flex items-center">
+              <svg
+                className="w-4 h-4 mr-1"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
+                />
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
+                />
+              </svg>
+              {report.location.address ||
+                `${report.location.latitude.toFixed(4)}, ${report.location.longitude.toFixed(4)}`}
+            </div>
+
+            <button
+              onClick={() => onDelete(report._id)}
+              className="px-3 py-1 text-sm bg-red-500 text-white rounded hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500"
+            >
+              Delete
+            </button>
           </div>
         </div>
       )}
+
     </div>
   );
 };
