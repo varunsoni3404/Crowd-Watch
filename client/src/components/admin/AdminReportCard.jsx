@@ -87,23 +87,14 @@ const AdminReportCard = ({ report, onStatusUpdate, onDelete }) => {
           {report.photoUrl && (
             <div className="ml-4 flex-shrink-0">
               <img
-                src={`https://sq04q0b3-5000.inc1.devtunnels.ms${report.photoUrl}`}
+                src={`${import.meta.env.VITE_BASE_URL}${report.photoUrl}`}
                 alt="Report"
                 className="w-24 h-24 object-cover rounded-md border cursor-pointer hover:opacity-80"
-                onClick={() => window.open(`https://sq04q0b3-5000.inc1.devtunnels.ms${report.photoUrl}`, '_blank')}
+                onClick={() => window.open(`${import.meta.env.VITE_BASE_URL}${report.photoUrl}`, '_blank')}
+              // onClick={() => window.open(`https://sq04q0b3-5000.inc1.devtunnels.ms${report.photoUrl}`, '_blank')}
               />
             </div>
           )}
-          {/* {report.photoUrl && (
-            <div className="ml-4 flex-shrink-0">
-              <img
-                src={`http://localhost:5000${report.photoUrl}`}
-                alt="Report"
-                className="w-24 h-24 object-cover rounded-md border cursor-pointer hover:opacity-80"
-                onClick={() => window.open(`http://localhost:5000${report.photoUrl}`, '_blank')}
-              />
-            </div>
-          )} */}
         </div>
 
         {/* Action Buttons */}

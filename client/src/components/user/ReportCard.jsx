@@ -126,21 +126,14 @@ const ReportCard = ({ report }) => {
         {report.photoUrl && (
           <div className="ml-4 flex-shrink-0">
             <img
-              src={`https://sq04q0b3-5000.inc1.devtunnels.ms${report.photoUrl}`}
+              // src={`https://sq04q0b3-5000.inc1.devtunnels.ms${report.photoUrl}`}
+              src={`${import.meta.env.VITE_BASE_URL}${report.photoUrl}`}
+
               alt="Report"
               className="w-20 h-20 object-cover rounded-md border border-gray-300"
             />
           </div>
         )}
-        {/* {report.photoUrl && (
-          <div className="ml-4 flex-shrink-0">
-            <img
-              src={`http://localhost:5000${report.photoUrl}`}
-              alt="Report"
-              className="w-20 h-20 object-cover rounded-md border border-gray-300"
-            />
-          </div>
-        )} */}
       </div>
 
       {report.location && (

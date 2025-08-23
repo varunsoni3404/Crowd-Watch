@@ -2,7 +2,7 @@
 import { io } from "socket.io-client";
 
 // const SOCKET_URL = "http://localhost:5000";
-const SOCKET_URL = "https://sq04q0b3-5000.inc1.devtunnels.ms";
+const SOCKET_URL = import.meta.env.VITE_BASE_URL;
 
 const socket = io(SOCKET_URL, {
   autoConnect: true,

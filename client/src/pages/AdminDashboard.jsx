@@ -10,8 +10,8 @@ import ReportsChart from '../components/admin/ReportsChart';
 import FilterControls from '../components/admin/FilterControls';
 import io from 'socket.io-client';
 
-// const socket = io('http://localhost:5000');
-const socket = io('https://sq04q0b3-5000.inc1.devtunnels.ms');
+const socket = io(import.meta.env.VITE_BASE_URL);
+// const socket = io('https://sq04q0b3-5000.inc1.devtunnels.ms');
 
 const AdminDashboard = () => {
   const [reports, setReports] = useState([]);
