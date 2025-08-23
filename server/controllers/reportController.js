@@ -140,7 +140,6 @@ const updateReportStatus = async (req, res) => {
             report.statusUpdatedAt = new Date();
             await report.save();
 
-            // 🔥 Emit socket event when status changes
             const io = req.app.get('io');
             if (io) io.emit('reportUpdated', report);
         }
@@ -160,9 +159,40 @@ const updateReportStatus = async (req, res) => {
     }
 };
 
+const deleteReport = async (req, res) => {
+    try {
+        const report = await Report.findById(req.params.id);
+        
+        if (!report) {
+            return res.status(404).json({
+                success: false,
+                message: 'Report not found'
+            });
+        }
+
+        await Report.findByIdAndDelete(req.params.id);
+
+        const io = req.app.get('io');
+        if (io) io.emit('reportDeleted', req.params.id);
+
+        res.json({
+            success: true,
+            message: 'Report deleted successfully'
+        });
+    } catch (error) {
+        console.error('Delete report error:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Server error deleting report',
+            error: error.message
+        });
+    }
+};
+
 module.exports = {
     createReport,
     getUserReports,
     getReportById,
-    updateReportStatus
+    updateReportStatus,
+    deleteReport   
 };

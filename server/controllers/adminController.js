@@ -161,7 +161,6 @@ const deleteReport = async (req, res) => {
 
         await Report.findByIdAndDelete(req.params.id);
 
-        // 🔥 Emit socket event with deleted ID
         const io = req.app.get('io');
         if (io) io.emit('reportDeleted', req.params.id);
 
