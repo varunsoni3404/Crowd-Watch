@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
+import ReportLocationMap from './ReportLocationMap';
 
 const AdminReportCard = ({ report, onStatusUpdate, onDelete }) => {
   const [showDetails, setShowDetails] = useState(false);
   const [statusModal, setStatusModal] = useState(false);
   const [newStatus, setNewStatus] = useState(report.status);
   const [adminNotes, setAdminNotes] = useState(report.adminNotes || '');
+  const [showMap, setShowMap] = useState(false);
 
   const getStatusColor = (status) => {
     switch (status) {
@@ -112,6 +114,14 @@ const AdminReportCard = ({ report, onStatusUpdate, onDelete }) => {
             >
               {showDetails ? 'Hide Details' : 'Show Details'}
             </button>
+            {report.location && report.location.latitude && report.location.longitude && (
+              <button
+                onClick={() => setShowMap(!showMap)}
+                className="px-3 py-1 text-sm bg-green-500 text-white rounded hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500"
+              >
+                {showMap ? 'Hide Map' : 'Show Map'}
+              </button>
+            )}
           </div>
           <button
             onClick={() => onDelete(report._id)}
@@ -146,6 +156,14 @@ const AdminReportCard = ({ report, onStatusUpdate, onDelete }) => {
               </div>
             )}
 
+          </div>
+        )}
+
+        {/* Map View */}
+        {showMap && report.location && report.location.latitude && report.location.longitude && (
+          <div className="mt-4 pt-4 border-t border-gray-200">
+            <h4 className="text-sm font-medium text-gray-900 mb-3">Location Map</h4>
+            <ReportLocationMap report={report} height="250px" />
           </div>
         )}
       </div>

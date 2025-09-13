@@ -8,6 +8,7 @@ import AdminReportCard from '../components/admin/AdminReportCard';
 import StatsCards from '../components/admin/StatsCards';
 import ReportsChart from '../components/admin/ReportsChart';
 import FilterControls from '../components/admin/FilterControls';
+import ReportsMap from '../components/admin/ReportsMap';
 import io from 'socket.io-client';
 
 const socket = io(import.meta.env.VITE_BASE_URL);
@@ -27,6 +28,7 @@ const AdminDashboard = () => {
     page: 1,
     limit: 20,
   });
+  const [viewMode, setViewMode] = useState('list'); // 'list' or 'map'
 
   const { user, logout } = useAuth();
   const { showError, showSuccess } = useNotification();
@@ -186,8 +188,38 @@ const AdminDashboard = () => {
             <h2 className="text-xl font-semibold text-gray-900 mb-4 sm:mb-0">
               All Reports
             </h2>
-            <div className="flex items-center space-x-2 text-sm text-gray-500">
-              <span>Total: {reports.length} reports</span>
+            <div className="flex items-center space-x-4">
+              <div className="flex items-center space-x-2 text-sm text-gray-500">
+                <span>Total: {reports.length} reports</span>
+              </div>
+              <div className="flex bg-gray-100 rounded-lg p-1">
+                <button
+                  onClick={() => setViewMode('list')}
+                  className={`px-3 py-1 text-sm rounded-md transition-colors ${
+                    viewMode === 'list'
+                      ? 'bg-white text-gray-900 shadow-sm'
+                      : 'text-gray-600 hover:text-gray-900'
+                  }`}
+                >
+                  <svg className="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 10h16M4 14h16M4 18h16" />
+                  </svg>
+                  List
+                </button>
+                <button
+                  onClick={() => setViewMode('map')}
+                  className={`px-3 py-1 text-sm rounded-md transition-colors ${
+                    viewMode === 'map'
+                      ? 'bg-white text-gray-900 shadow-sm'
+                      : 'text-gray-600 hover:text-gray-900'
+                  }`}
+                >
+                  <svg className="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                  </svg>
+                  Map
+                </button>
+              </div>
             </div>
           </div>
 
@@ -195,29 +227,44 @@ const AdminDashboard = () => {
           <FilterControls filters={filters} onFilterChange={handleFilterChange} />
         </div>
 
-        {/* Reports List */}
+        {/* Reports List or Map */}
         <div className="p-6">
           {loading ? (
             <LoadingSpinner />
           ) : reports.length > 0 ? (
-            <div className="space-y-4">
-              {reports
-                .filter((report) =>
-                  filters.location
-                    ? (report.location?.address || '')
-                        .toLowerCase()
-                        .includes(filters.location.toLowerCase())
-                    : true
-                )
-                .map((report) => (
-                  <AdminReportCard
-                    key={report._id}
-                    report={report}
-                    onStatusUpdate={handleStatusUpdate}
-                    onDelete={handleDeleteReport}
-                  />
-                ))}
-            </div>
+            <>
+              {viewMode === 'list' ? (
+                <div className="space-y-4">
+                  {reports
+                    .filter((report) =>
+                      filters.location
+                        ? (report.location?.address || '')
+                            .toLowerCase()
+                            .includes(filters.location.toLowerCase())
+                        : true
+                    )
+                    .map((report) => (
+                      <AdminReportCard
+                        key={report._id}
+                        report={report}
+                        onStatusUpdate={handleStatusUpdate}
+                        onDelete={handleDeleteReport}
+                      />
+                    ))}
+                </div>
+              ) : (
+                <ReportsMap 
+                  reports={reports.filter((report) =>
+                    filters.location
+                      ? (report.location?.address || '')
+                          .toLowerCase()
+                          .includes(filters.location.toLowerCase())
+                      : true
+                  )} 
+                  height="500px"
+                />
+              )}
+            </>
           ) : (
             <div className="text-center py-12">
               <svg
