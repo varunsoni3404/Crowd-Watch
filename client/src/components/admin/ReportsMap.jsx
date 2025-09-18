@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
+import React, { useEffect, useMemo, useState } from 'react';
+import { MapContainer, TileLayer, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import 'leaflet.markercluster/dist/MarkerCluster.css';
@@ -7,7 +7,7 @@ import 'leaflet.markercluster/dist/MarkerCluster.Default.css';
 import 'leaflet.markercluster';
 import 'leaflet.heat';
 
-// Fix for default markers in react-leaflet
+// --- Fix for default marker icons ---
 delete L.Icon.Default.prototype._getIconUrl;
 L.Icon.Default.mergeOptions({
   iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png',
@@ -15,25 +15,21 @@ L.Icon.Default.mergeOptions({
   shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
 });
 
-// Custom marker icons based on report status
-const createCustomIcon = (status) => {
-  const getColor = (status) => {
-    switch (status) {
-      case 'Submitted':
-        return '#f59e0b'; // yellow
-      case 'In Progress':
-        return '#3b82f6'; // blue
-      case 'Resolved':
-        return '#10b981'; // green
-      default:
-        return '#6b7280'; // gray
-    }
-  };
+// --- Status config (colors + badges) ---
+const STATUS_CONFIG = {
+  Submitted: { color: '#f59e0b', badge: 'bg-yellow-100 text-yellow-800' },
+  'In Progress': { color: '#3b82f6', badge: 'bg-blue-100 text-blue-800' },
+  Resolved: { color: '#10b981', badge: 'bg-green-100 text-green-800' },
+  default: { color: '#6b7280', badge: 'bg-gray-100 text-gray-800' },
+};
 
+// --- Custom marker icon ---
+const createCustomIcon = (status) => {
+  const color = STATUS_CONFIG[status]?.color || STATUS_CONFIG.default.color;
   return L.divIcon({
     className: 'custom-div-icon',
     html: `<div style="
-      background-color: ${getColor(status)};
+      background-color: ${color};
       width: 20px;
       height: 20px;
       border-radius: 50%;
@@ -45,47 +41,66 @@ const createCustomIcon = (status) => {
       color: white;
       font-size: 12px;
       font-weight: bold;
-    ">${status.charAt(0)}</div>`,
+    ">${status?.charAt(0) || '?'}</div>`,
     iconSize: [20, 20],
     iconAnchor: [10, 10],
   });
 };
 
-// Component to handle map layers (clustering, heatmap, and bounds)
+// --- Popup content generator ---
+const getPopupContent = (report) => `
+  <div class="p-2 min-w-[200px]">
+    <div class="flex items-center space-x-2 mb-2">
+      <h3 class="font-semibold text-gray-900 text-sm">${report.title}</h3>
+      <span class="px-2 py-1 text-xs font-medium rounded-full ${
+        STATUS_CONFIG[report.status]?.badge || STATUS_CONFIG.default.badge
+      }">${report.status}</span>
+    </div>
+    
+    <div class="space-y-1 text-xs text-gray-600">
+      <div><strong>Category:</strong> ${report.category}</div>
+      <div><strong>User:</strong> ${report.userId?.username || 'Unknown'}</div>
+      <div><strong>Submitted:</strong> ${new Date(report.createdAt).toLocaleString()}</div>
+      ${report.location?.address ? `<div><strong>Address:</strong> ${report.location.address}</div>` : ''}
+    </div>
+    
+    <p class="text-xs text-gray-700 mt-2">${report.description}</p>
+    
+    ${report.photoUrl ? `
+      <div class="mt-2">
+        <img
+          src="${import.meta.env.VITE_BASE_URL}${report.photoUrl}"
+          alt="Report"
+          class="w-full h-20 object-cover rounded cursor-pointer hover:opacity-80"
+          onclick="window.open('${import.meta.env.VITE_BASE_URL}${report.photoUrl}', '_blank')"
+        />
+      </div>
+    ` : ''}
+  </div>
+`;
+
+// --- Map layers (clusters + heatmap + fitBounds) ---
 const MapLayers = ({ reports, showClusters, showHeatmap }) => {
   const map = useMap();
 
   useEffect(() => {
-    const validReports = reports.filter(report => 
-      report.location && 
-      report.location.latitude && 
-      report.location.longitude
-    );
+    if (reports.length === 0) return;
 
-    if (validReports.length === 0) return;
-
-    let markerClusterGroup = null;
+    let markerLayer = null;
+    let clusterLayer = null;
     let heatmapLayer = null;
-    let individualMarkers = [];
 
-    // Create clustered markers
+    // Clustering enabled
     if (showClusters) {
-      markerClusterGroup = L.markerClusterGroup({
+      clusterLayer = L.markerClusterGroup({
         maxClusterRadius: 50,
         spiderfyOnMaxZoom: true,
         showCoverageOnHover: false,
         zoomToBoundsOnClick: true,
-        iconCreateFunction: function(cluster) {
+        iconCreateFunction: (cluster) => {
           const count = cluster.getChildCount();
-          let size = 'small';
-          
-          if (count < 10) {
-            size = 'small';
-          } else if (count < 100) {
-            size = 'medium';
-          } else {
-            size = 'large';
-          }
+          const size = count < 10 ? 'small' : count < 100 ? 'medium' : 'large';
+          const dim = size === 'small' ? 30 : size === 'medium' ? 35 : 40;
 
           return new L.DivIcon({
             html: `<div style="
@@ -99,140 +114,41 @@ const MapLayers = ({ reports, showClusters, showHeatmap }) => {
               font-weight: bold;
               box-shadow: 0 2px 8px rgba(0,0,0,0.3);
               font-size: ${size === 'small' ? '12px' : size === 'medium' ? '14px' : '16px'};
-              width: ${size === 'small' ? '30px' : size === 'medium' ? '35px' : '40px'};
-              height: ${size === 'small' ? '30px' : size === 'medium' ? '35px' : '40px'};
+              width: ${dim}px;
+              height: ${dim}px;
             ">${count}</div>`,
             className: 'marker-cluster',
-            iconSize: new L.Point(
-              size === 'small' ? 30 : size === 'medium' ? 35 : 40, 
-              size === 'small' ? 30 : size === 'medium' ? 35 : 40
-            ),
+            iconSize: new L.Point(dim, dim),
           });
-        }
+        },
       });
 
-      validReports.forEach((report) => {
-        const marker = L.marker(
-          [report.location.latitude, report.location.longitude],
-          { icon: createCustomIcon(report.status) }
-        );
-
-        // Create popup content
-        const popupContent = `
-          <div class="p-2 min-w-[200px]">
-            <div class="flex items-center space-x-2 mb-2">
-              <h3 class="font-semibold text-gray-900 text-sm">${report.title}</h3>
-              <span class="px-2 py-1 text-xs font-medium rounded-full ${
-                report.status === 'Submitted' ? 'bg-yellow-100 text-yellow-800' :
-                report.status === 'In Progress' ? 'bg-blue-100 text-blue-800' :
-                report.status === 'Resolved' ? 'bg-green-100 text-green-800' :
-                'bg-gray-100 text-gray-800'
-              }">
-                ${report.status}
-              </span>
-            </div>
-            
-            <div class="space-y-1 text-xs text-gray-600">
-              <div><strong>Category:</strong> ${report.category}</div>
-              <div><strong>User:</strong> ${report.userId?.username || 'Unknown'}</div>
-              <div><strong>Submitted:</strong> ${new Date(report.createdAt).toLocaleDateString('en-US', {
-                year: 'numeric',
-                month: 'short',
-                day: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit'
-              })}</div>
-              ${report.location?.address ? `<div><strong>Address:</strong> ${report.location.address}</div>` : ''}
-            </div>
-            
-            <p class="text-xs text-gray-700 mt-2">${report.description}</p>
-            
-            ${report.photoUrl ? `
-              <div class="mt-2">
-                <img
-                  src="${import.meta.env.VITE_BASE_URL}${report.photoUrl}"
-                  alt="Report"
-                  class="w-full h-20 object-cover rounded cursor-pointer hover:opacity-80"
-                  onclick="window.open('${import.meta.env.VITE_BASE_URL}${report.photoUrl}', '_blank')"
-                />
-              </div>
-            ` : ''}
-          </div>
-        `;
-
-        marker.bindPopup(popupContent);
-        markerClusterGroup.addLayer(marker);
+      reports.forEach((r) => {
+        const marker = L.marker([r.location.latitude, r.location.longitude], {
+          icon: createCustomIcon(r.status),
+        }).bindPopup(getPopupContent(r));
+        clusterLayer.addLayer(marker);
       });
 
-      map.addLayer(markerClusterGroup);
+      map.addLayer(clusterLayer);
     } else {
-      // Add individual markers when clustering is disabled
-      validReports.forEach((report) => {
-        const marker = L.marker(
-          [report.location.latitude, report.location.longitude],
-          { icon: createCustomIcon(report.status) }
-        );
-
-        const popupContent = `
-          <div class="p-2 min-w-[200px]">
-            <div class="flex items-center space-x-2 mb-2">
-              <h3 class="font-semibold text-gray-900 text-sm">${report.title}</h3>
-              <span class="px-2 py-1 text-xs font-medium rounded-full ${
-                report.status === 'Submitted' ? 'bg-yellow-100 text-yellow-800' :
-                report.status === 'In Progress' ? 'bg-blue-100 text-blue-800' :
-                report.status === 'Resolved' ? 'bg-green-100 text-green-800' :
-                'bg-gray-100 text-gray-800'
-              }">
-                ${report.status}
-              </span>
-            </div>
-            
-            <div class="space-y-1 text-xs text-gray-600">
-              <div><strong>Category:</strong> ${report.category}</div>
-              <div><strong>User:</strong> ${report.userId?.username || 'Unknown'}</div>
-              <div><strong>Submitted:</strong> ${new Date(report.createdAt).toLocaleDateString('en-US', {
-                year: 'numeric',
-                month: 'short',
-                day: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit'
-              })}</div>
-              ${report.location?.address ? `<div><strong>Address:</strong> ${report.location.address}</div>` : ''}
-            </div>
-            
-            <p class="text-xs text-gray-700 mt-2">${report.description}</p>
-            
-            ${report.photoUrl ? `
-              <div class="mt-2">
-                <img
-                  src="${import.meta.env.VITE_BASE_URL}${report.photoUrl}"
-                  alt="Report"
-                  class="w-full h-20 object-cover rounded cursor-pointer hover:opacity-80"
-                  onclick="window.open('${import.meta.env.VITE_BASE_URL}${report.photoUrl}', '_blank')"
-                />
-              </div>
-            ` : ''}
-          </div>
-        `;
-
-        marker.bindPopup(popupContent);
-        marker.addTo(map);
-        individualMarkers.push(marker);
-      });
+      // Individual markers
+      markerLayer = L.layerGroup(
+        reports.map((r) =>
+          L.marker([r.location.latitude, r.location.longitude], {
+            icon: createCustomIcon(r.status),
+          }).bindPopup(getPopupContent(r))
+        )
+      );
+      map.addLayer(markerLayer);
     }
 
-    // Create heatmap layer
+    // Heatmap
     if (showHeatmap) {
-      const heatmapData = validReports.map((report) => {
-        // Assign intensity based on status (unresolved issues get higher intensity)
-        const intensity = report.status === 'Resolved' ? 0.3 : 
-                         report.status === 'In Progress' ? 0.7 : 1.0;
-        
-        return [
-          report.location.latitude,
-          report.location.longitude,
-          intensity
-        ];
+      const heatmapData = reports.map((r) => {
+        const intensity =
+          r.status === 'Resolved' ? 0.3 : r.status === 'In Progress' ? 0.7 : 1.0;
+        return [r.location.latitude, r.location.longitude, intensity];
       });
 
       heatmapLayer = L.heatLayer(heatmapData, {
@@ -240,116 +156,81 @@ const MapLayers = ({ reports, showClusters, showHeatmap }) => {
         blur: 15,
         maxZoom: 17,
         gradient: {
-          0.2: '#3b82f6',  // blue for low intensity
-          0.4: '#f59e0b',  // yellow for medium intensity
-          0.6: '#f97316',  // orange for high intensity
-          1.0: '#dc2626'   // red for highest intensity
-        }
+          0.2: '#3b82f6',
+          0.4: '#f59e0b',
+          0.6: '#f97316',
+          1.0: '#dc2626',
+        },
       });
 
       map.addLayer(heatmapLayer);
     }
 
-    // Fit bounds to show all markers
-    if (validReports.length > 0) {
+    // Fit map bounds once when reports change
+    if (reports.length > 0) {
       const bounds = L.latLngBounds(
-        validReports.map(report => [
-          report.location.latitude,
-          report.location.longitude
-        ])
+        reports.map((r) => [r.location.latitude, r.location.longitude])
       );
       map.fitBounds(bounds, { padding: [20, 20] });
     }
 
-    // Cleanup function
+    // Cleanup
     return () => {
-      if (markerClusterGroup) {
-        map.removeLayer(markerClusterGroup);
-      }
-      if (heatmapLayer) {
-        map.removeLayer(heatmapLayer);
-      }
-      individualMarkers.forEach(marker => {
-        map.removeLayer(marker);
-      });
+      if (clusterLayer) map.removeLayer(clusterLayer);
+      if (markerLayer) map.removeLayer(markerLayer);
+      if (heatmapLayer) map.removeLayer(heatmapLayer);
     };
   }, [reports, map, showClusters, showHeatmap]);
 
   return null;
 };
 
-// Map controls component
-const MapControls = ({ showClusters, setShowClusters, showHeatmap, setShowHeatmap }) => {
-  return (
-    <div className="absolute top-4 right-4 bg-white rounded-lg shadow-lg p-3 z-[1000] space-y-2">
-      <div className="text-sm font-semibold text-gray-700 mb-2">Map Options</div>
-      
-      <label className="flex items-center space-x-2 cursor-pointer">
-        <input
-          type="checkbox"
-          checked={showClusters}
-          onChange={(e) => setShowClusters(e.target.checked)}
-          className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
-        />
-        <span className="text-sm text-gray-700">Cluster Markers</span>
-      </label>
-      
-      <label className="flex items-center space-x-2 cursor-pointer">
-        <input
-          type="checkbox"
-          checked={showHeatmap}
-          onChange={(e) => setShowHeatmap(e.target.checked)}
-          className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
-        />
-        <span className="text-sm text-gray-700">Show Heatmap</span>
-      </label>
-      
-      <div className="mt-3 pt-2 border-t border-gray-200">
-        <div className="text-xs text-gray-600 space-y-1">
-          <div className="flex items-center space-x-2">
-            <div className="w-3 h-3 bg-yellow-500 rounded-full"></div>
-            <span>Submitted</span>
+// --- Map controls ---
+const MapControls = ({ showClusters, setShowClusters, showHeatmap, setShowHeatmap }) => (
+  <div className="absolute top-4 right-4 bg-white rounded-lg shadow-lg p-3 z-[1000] space-y-2">
+    <div className="text-sm font-semibold text-gray-700 mb-2">Map Options</div>
+
+    <label className="flex items-center space-x-2 cursor-pointer">
+      <input
+        type="checkbox"
+        checked={showClusters}
+        onChange={(e) => setShowClusters(e.target.checked)}
+        className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+      />
+      <span className="text-sm text-gray-700">Cluster Markers</span>
+    </label>
+
+    <label className="flex items-center space-x-2 cursor-pointer">
+      <input
+        type="checkbox"
+        checked={showHeatmap}
+        onChange={(e) => setShowHeatmap(e.target.checked)}
+        className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+      />
+      <span className="text-sm text-gray-700">Show Heatmap</span>
+    </label>
+
+    <div className="mt-3 pt-2 border-t border-gray-200">
+      <div className="text-xs text-gray-600 space-y-1">
+        {Object.entries(STATUS_CONFIG).filter(([k]) => k !== 'default').map(([status, { color }]) => (
+          <div key={status} className="flex items-center space-x-2">
+            <div className="w-3 h-3 rounded-full" style={{ backgroundColor: color }}></div>
+            <span>{status}</span>
           </div>
-          <div className="flex items-center space-x-2">
-            <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
-            <span>In Progress</span>
-          </div>
-          <div className="flex items-center space-x-2">
-            <div className="w-3 h-3 bg-green-500 rounded-full"></div>
-            <span>Resolved</span>
-          </div>
-        </div>
+        ))}
       </div>
     </div>
-  );
-};
+  </div>
+);
 
+// --- Main component ---
 const ReportsMap = ({ reports, height = '400px' }) => {
-  const [mapCenter, setMapCenter] = useState([0, 0]);
   const [showClusters, setShowClusters] = useState(true);
   const [showHeatmap, setShowHeatmap] = useState(false);
 
-  useEffect(() => {
-    if (reports.length > 0) {
-      const validReports = reports.filter(report => 
-        report.location && 
-        report.location.latitude && 
-        report.location.longitude
-      );
-
-      if (validReports.length > 0) {
-        // Calculate center point
-        const avgLat = validReports.reduce((sum, report) => sum + report.location.latitude, 0) / validReports.length;
-        const avgLng = validReports.reduce((sum, report) => sum + report.location.longitude, 0) / validReports.length;
-        setMapCenter([avgLat, avgLng]);
-      }
-    }
-  }, [reports]);
-
-  const validReports = reports.filter(report => 
-    report.location && 
-    report.location.latitude && 
-    report.location.longitude
+  const validReports = useMemo(
+    () => reports.filter((r) => r.location?.latitude && r.location?.longitude),
+    [reports]
   );
 
   if (validReports.length === 0) {
@@ -368,25 +249,21 @@ const ReportsMap = ({ reports, height = '400px' }) => {
   return (
     <div className="relative w-full rounded-lg overflow-hidden border border-gray-200" style={{ height }}>
       <MapContainer
-        center={mapCenter}
-        zoom={15}
+        center={[20, 0]} // fallback center
+        zoom={2}
         style={{ height: '100%', width: '100%' }}
         scrollWheelZoom={true}
         zoomControl={true}
       >
         <TileLayer
-          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
-        
-        <MapLayers 
-          reports={validReports} 
-          showClusters={showClusters}
-          showHeatmap={showHeatmap}
-        />
+
+        <MapLayers reports={validReports} showClusters={showClusters} showHeatmap={showHeatmap} />
       </MapContainer>
-      
-      <MapControls 
+
+      <MapControls
         showClusters={showClusters}
         setShowClusters={setShowClusters}
         showHeatmap={showHeatmap}
