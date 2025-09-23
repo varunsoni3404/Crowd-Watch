@@ -1,9 +1,11 @@
 from flask import Flask, request, jsonify
+from flask_cors import CORS
 from transformers import CLIPProcessor, CLIPModel
 from PIL import Image
 import torch
 
 app = Flask(__name__)
+CORS(app)
 
 print("Loading CLIP model...")
 model = CLIPModel.from_pretrained("openai/clip-vit-base-patch32")
@@ -60,8 +62,8 @@ def classify():
 
     return jsonify({
         "category": category,
-        "confidence": round(confidence, 3)
+        # "confidence": round(confidence, 3)
     })
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000, debug=True)
+    app.run(host="0.0.0.0", port=8080, debug=True)
