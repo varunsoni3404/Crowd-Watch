@@ -41,77 +41,73 @@ const ReportForm = () => {
   };
 
   const handlePhotoChange = async (e) => {
-  const file = e.target.files[0];
-  if (file) {
-    // Check file size (5MB limit)
-    if (file.size > 5 * 1024 * 1024) {
-      showError('Photo size must be less than 5MB');
-      return;
-    }
+    const file = e.target.files[0];
+    if (file) {
+      // Check file size (5MB limit)
+      if (file.size > 5 * 1024 * 1024) {
+        showError('Photo size must be less than 5MB');
+        return;
+      }
 
-    // Check file type
-    if (!file.type.startsWith('image/')) {
-      showError('Please select a valid image file');
-      return;
-    }
+      // Check file type
+      if (!file.type.startsWith('image/')) {
+        showError('Please select a valid image file');
+        return;
+      }
 
-    setFormData(prev => ({
-      ...prev,
-      photo: file
-    }));
+      setFormData(prev => ({
+        ...prev,
+        photo: file
+      }));
 
-    // Create preview
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      setPhotoPreview(reader.result);
-    };
-    reader.readAsDataURL(file);
+      // Create preview
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setPhotoPreview(reader.result);
+      };
+      reader.readAsDataURL(file);
 
-    // Auto-classify the image
-    try {
-      const classifyFormData = new FormData();
-      classifyFormData.append('image', file);
+      // Auto-classify the image
+      try {
+        const classifyFormData = new FormData();
+        classifyFormData.append('image', file);
 
-      const response = await fetch('http://127.0.0.1:8080/classify', {
-        method: 'POST',
-        body: classifyFormData,
-      });
+        const response = await fetch('http://127.0.0.1:8080/classify', {
+          method: 'POST',
+          body: classifyFormData,
+        });
 
-      if (response.ok) {
-        const result = await response.json();
-        const detectedCategory = result.category;
-        
-        // Map the API response to your form categories
-        const categoryMapping = {
-          'drainage issue': 'Drainage',
-          'pothole': 'Potholes',
-          'sanitation': 'Sanitation',
-          'streetlight': 'Streetlights',
-          'water supply': 'Water Supply',
-          'traffic': 'Traffic',
-          'park': 'Parks',
-          // Add more mappings as needed
-        };
+        if (response.ok) {
+          const result = await response.json();
+          const detectedCategory = result.category;
 
-        const mappedCategory = categoryMapping[detectedCategory.toLowerCase()] || 'Other';
-        
-        // Auto-select the category
-        setFormData(prev => ({
-          ...prev,
-          category: mappedCategory
-        }));
+           // Map the API response to your form categories
+          const categoryMapping = {
+            "pothole on road": "Potholes",
+            "drainage issue": "Drainage",
+            "garbage problem": "Sanitation", 
+            "streetlight not working": "Streetlights",
+          };
 
-        showSuccess(`Image classified as: ${mappedCategory}`);
-      } else {
-        console.error('Classification failed:', response.statusText);
+          const mappedCategory = categoryMapping[detectedCategory.toLowerCase()] || 'Other';
+
+          // Auto-select the category
+          setFormData(prev => ({
+            ...prev,
+            category: mappedCategory
+          }));
+
+          showSuccess(`Image classified as: ${mappedCategory}`);
+        } else {
+          console.error('Classification failed:', response.statusText);
+          showError('Failed to classify image. Please select category manually.');
+        }
+      } catch (error) {
+        console.error('Classification error:', error);
         showError('Failed to classify image. Please select category manually.');
       }
-    } catch (error) {
-      console.error('Classification error:', error);
-      showError('Failed to classify image. Please select category manually.');
     }
-  }
-};
+  };
 
   const getCurrentLocation = () => {
     setLocationLoading(true);
@@ -325,6 +321,7 @@ const ReportForm = () => {
               Category *
             </label>
             <select
+              disabled
               id="category"
               name="category"
               required
@@ -349,7 +346,7 @@ const ReportForm = () => {
             <textarea
               id="description"
               name="description"
-              required
+              // required
               rows="4"
               maxLength="1000"
               className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
