@@ -47,16 +47,16 @@ const ReportForm = () => {
       
       <div className="bg-white shadow-md rounded-lg p-6">
         <form onSubmit={handleSubmit} className="space-y-6">
-          <BasicInfoSection 
-            formData={formData}
-            onChange={handleInputChange}
-          />
-          
           <PhotoUploadSection
             photo={formData.photo}
             photoPreview={photoPreview}
             onPhotoChange={handlePhotoChange}
             analyzing={analyzing}
+          />
+          
+          <BasicInfoSection 
+            formData={formData}
+            onChange={handleInputChange}
           />
           
           <LocationSection

@@ -176,7 +176,7 @@ export const useReportForm = ({ showSuccess, showError, navigate }) => {
       navigate('/dashboard');
     } catch (error) {
       console.error('Submit error:', error);
-      const message = error.response?.data?.message || 'Failed to submit report';
+      const message = 'Failed to submit report, please upload a valid picture';
       showError(message);
     } finally {
       setLoading(false);
