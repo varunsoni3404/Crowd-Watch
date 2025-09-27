@@ -13,6 +13,7 @@ const BasicInfoSection = ({ formData, onChange }) => {
           type="text"
           id="title"
           name="title"
+          disabled
           required
           maxLength="200"
           className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
@@ -64,6 +65,7 @@ const BasicInfoSection = ({ formData, onChange }) => {
           id="description"
           name="description"
           rows="4"
+          disabled
           maxLength="1000"
           className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
           placeholder="Provide detailed description of the issue..."

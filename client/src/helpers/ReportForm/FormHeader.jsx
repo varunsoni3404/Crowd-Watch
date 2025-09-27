@@ -13,7 +13,7 @@ const FormHeader = ({ onBack }) => {
         Back to Dashboard
       </button>
       <h1 className="text-3xl font-bold text-gray-900">Report New Issue</h1>
-      <p className="text-gray-600 mt-2">Help improve your community by reporting civic issues</p>
+      <p className="text-gray-600 mt-2">Help improve your community by reporting civic issues just by adding the photo</p>
     </div>
   );
 };
