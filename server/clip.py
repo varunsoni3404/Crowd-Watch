@@ -57,12 +57,12 @@ def classify():
     category, confidence = classify_issue(image_path, description)
 
     #handle low confidence
-    if confidence < 0.2:
+    if confidence < 0.7:
         category = "Needs manual review"
 
     return jsonify({
         "category": category,
-        # "confidence": round(confidence, 3)
+        "confidence": round(confidence, 3)
     })
 
 if __name__ == "__main__":
