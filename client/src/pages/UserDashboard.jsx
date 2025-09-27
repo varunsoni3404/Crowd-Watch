@@ -6,11 +6,13 @@ import { useNotification } from '../context/NotificationContext';
 import { reportsAPI } from '../utils/api';
 import LoadingSpinner from '../components/common/LoadingSpinner';
 import ReportCard from '../components/user/ReportCard';
+import ReportsMap from '../components/admin/ReportsMap';
 import socket from '../utils/socket';
 
 const UserDashboard = () => {
   const [reports, setReports] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [viewMode, setViewMode] = useState('list'); // 'list' or 'map'
   const [stats, setStats] = useState({
     total: 0,
     submitted: 0,
@@ -175,15 +177,67 @@ const UserDashboard = () => {
       {/* Reports List */}
       <div className="bg-white rounded-lg shadow-md">
         <div className="p-6 border-b border-gray-200">
-          <h2 className="text-xl font-semibold text-gray-900">Your Reports</h2>
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4">
+            <h2 className="text-xl font-semibold text-gray-900 mb-4 sm:mb-0">Your Reports</h2>
+            
+            {/* View Mode Toggle - Only show if there are reports */}
+            {reports.length > 0 && (
+              <div className="flex items-center space-x-4">
+                <div className="flex items-center space-x-2 text-sm text-gray-500">
+                  <span>Total: {reports.length} reports</span>
+                </div>
+                <div className="flex bg-gray-100 rounded-lg p-1">
+                  <button
+                    onClick={() => setViewMode('list')}
+                    className={`px-3 py-1 text-sm rounded-md transition-colors ${
+                      viewMode === 'list'
+                        ? 'bg-white text-gray-900 shadow-sm'
+                        : 'text-gray-600 hover:text-gray-900'
+                    }`}
+                  >
+                    <svg className="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 10h16M4 14h16M4 18h16" />
+                    </svg>
+                    List
+                  </button>
+                  <button
+                    onClick={() => setViewMode('map')}
+                    className={`px-3 py-1 text-sm rounded-md transition-colors ${
+                      viewMode === 'map'
+                        ? 'bg-white text-gray-900 shadow-sm'
+                        : 'text-gray-600 hover:text-gray-900'
+                    }`}
+                  >
+                    <svg className="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                    </svg>
+                    Map
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
         </div>
+
         <div className="p-6">
           {reports.length > 0 ? (
-            <div className="space-y-4">
-              {reports.map((report) => (
-                <ReportCard key={report._id} report={report} />
-              ))}
-            </div>
+            <>
+              {viewMode === 'list' ? (
+                <div className="space-y-4">
+                  {reports.map((report) => (
+                    <ReportCard key={report._id} report={report} />
+                  ))}
+                </div>
+              ) : (
+                <div className="h-96">
+                  <ReportsMap 
+                    reports={reports} 
+                    height="400px"
+                    showUserReportsOnly={true}
+                  />
+                </div>
+              )}
+            </>
           ) : (
             <div className="text-center py-12">
               <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">

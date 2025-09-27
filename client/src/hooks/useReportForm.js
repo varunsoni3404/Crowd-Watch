@@ -18,6 +18,7 @@ export const useReportForm = ({ showSuccess, showError, navigate }) => {
   const [locationLoading, setLocationLoading] = useState(false);
   const [photoPreview, setPhotoPreview] = useState(null);
   const [analyzing, setAnalyzing] = useState(false);
+  const [isAnalyzed, setIsAnalyzed] = useState(false);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -29,7 +30,13 @@ export const useReportForm = ({ showSuccess, showError, navigate }) => {
 
   const handlePhotoChange = async (e) => {
     const file = e.target.files[0];
-    if (!file) return;
+    if (!file) {
+      // Reset state when no file is selected
+      setFormData(prev => ({ ...prev, photo: null }));
+      setPhotoPreview(null);
+      setIsAnalyzed(false);
+      return;
+    }
 
     // File validation
     if (file.size > 5 * 1024 * 1024) {
@@ -44,8 +51,8 @@ export const useReportForm = ({ showSuccess, showError, navigate }) => {
 
     setFormData(prev => ({ ...prev, photo: file }));
     createPhotoPreview(file);
+    setIsAnalyzed(false);
     
-    // Auto-analyze the image and populate form
     await analyzeAndPopulateForm(file);
   };
 
@@ -70,10 +77,12 @@ export const useReportForm = ({ showSuccess, showError, navigate }) => {
         description: issueData.description || prev.description
       }));
 
+      setIsAnalyzed(true);
       showSuccess('Image analyzed and form auto-populated!');
     } catch (error) {
       console.error('Analysis error:', error);
       showError('Failed to analyze image. Please fill details manually.');
+      setIsAnalyzed(true);
     } finally {
       setAnalyzing(false);
     }
@@ -189,6 +198,7 @@ export const useReportForm = ({ showSuccess, showError, navigate }) => {
     locationLoading,
     photoPreview,
     analyzing,
+    isAnalyzed,
     handleInputChange,
     handlePhotoChange,
     getCurrentLocation,
