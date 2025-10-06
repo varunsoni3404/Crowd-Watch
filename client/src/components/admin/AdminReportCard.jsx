@@ -67,6 +67,14 @@ const AdminReportCard = ({ report, onStatusUpdate, onDelete }) => {
 
             <p className="text-gray-700 mb-3">{report.description}</p>
 
+            {report.additionalComments && (
+              <div className="mt-2 p-2 bg-gray-50 border-l-4 border-gray-400 rounded">
+                <p className="text-sm text-gray-800">
+                  <span className="font-medium">Additional Comments:</span> {report.additionalComments}
+                </p>
+              </div>
+            )}
+
             {report.location && (
               <div className="flex items-center text-sm text-gray-500 mb-3">
                 <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">

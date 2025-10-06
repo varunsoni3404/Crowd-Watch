@@ -4,7 +4,7 @@ const path = require('path');
 
 const createReport = async (req, res) => {
     try {
-        const { title, description, latitude, longitude, address, category } = req.body;
+    const { title, description, latitude, longitude, address, category, additionalComments } = req.body;
         
         // Validation
         if (!title || !description || !latitude || !longitude || !category) {
@@ -32,7 +32,8 @@ const createReport = async (req, res) => {
                 longitude: parseFloat(longitude),
                 address
             },
-            category
+            category,
+            additionalComments
         });
 
         await report.save();

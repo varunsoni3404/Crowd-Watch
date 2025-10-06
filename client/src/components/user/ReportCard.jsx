@@ -107,6 +107,14 @@ const ReportCard = ({ report }) => {
             {report.description}
           </p>
 
+          {report.additionalComments && (
+            <div className="mt-2 p-2 bg-gray-50 border-l-4 border-gray-400 rounded">
+              <p className="text-sm text-gray-800">
+                <span className="font-medium">Additional Comments:</span> {report.additionalComments}
+              </p>
+            </div>
+          )}
+
           <div className="flex items-center justify-between text-sm text-gray-500">
             <span>Submitted: {formatDate(report.createdAt)}</span>
             {report.statusUpdatedAt && report.statusUpdatedAt !== report.createdAt && (

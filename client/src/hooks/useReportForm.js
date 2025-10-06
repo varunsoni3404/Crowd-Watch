@@ -12,6 +12,7 @@ export const useReportForm = ({ showSuccess, showError, navigate }) => {
     latitude: '',
     longitude: '',
     address: '',
+    additionalComments: '',
   });
   
   const [loading, setLoading] = useState(false);
@@ -175,10 +176,10 @@ export const useReportForm = ({ showSuccess, showError, navigate }) => {
       submitData.append('photo', formData.photo);
       submitData.append('latitude', formData.latitude);
       submitData.append('longitude', formData.longitude);
-      
       if (formData.address) {
         submitData.append('address', formData.address.trim());
       }
+      submitData.append('additionalComments', formData.additionalComments.trim());
 
       await reportsAPI.createReport(submitData);
       showSuccess('Report submitted successfully!');

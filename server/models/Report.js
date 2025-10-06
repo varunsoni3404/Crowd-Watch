@@ -58,6 +58,10 @@ const reportSchema = new mongoose.Schema({
     statusUpdatedAt: {
         type: Date,
         default: Date.now
+    },
+    additionalComments: {
+        type: String,
+        maxlength: 1000
     }
 }, {
     timestamps: true
