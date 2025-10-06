@@ -123,12 +123,12 @@ const AdminReportCard = ({ report, onStatusUpdate, onDelete }) => {
               </button>
             )}
           </div>
-          <button
+          {/* <button
             onClick={() => onDelete(report._id)}
             className="px-3 py-1 text-sm bg-red-500 text-white rounded hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500"
           >
             Delete
-          </button>
+          </button> */}
         </div>
 
         {/* Additional Details */}
