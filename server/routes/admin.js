@@ -19,5 +19,8 @@ router.put('/reports/:id/assign', adminAuth, assignReport);
 router.delete('/reports/:id', adminAuth, deleteReport);
 
 router.get('/stats', adminAuth, getReportStats);
+// Export reports as CSV or XLSX
+const { exportReports } = require('../controllers/adminController');
+router.get('/export', adminAuth, exportReports);
 
 module.exports = router;

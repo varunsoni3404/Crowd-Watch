@@ -237,10 +237,95 @@ const getReportStats = async (req, res) => {
     }
 };
 
+const exportReports = async (req, res) => {
+    try {
+        const format = (req.query.format || 'csv').toLowerCase();
+
+        // fetch all reports (no pagination) with useful fields
+        const reports = await Report.find({})
+            .populate('userId', 'username email')
+            .populate('assignedAdmin', 'username')
+            .sort({ createdAt: -1 });
+
+        // Prepare rows
+        const rows = reports.map(r => ({
+            id: r._id.toString(),
+            title: r.title || '',
+            description: r.description || '',
+            category: r.category || '',
+            status: r.status || '',
+            photoUrl: r.photoUrl || '',
+            latitude: r.location?.latitude ?? '',
+            longitude: r.location?.longitude ?? '',
+            address: r.location?.address || '',
+            user: r.userId ? `${r.userId.username || ''} <${r.userId.email || ''}>` : '',
+            assignedAdmin: r.assignedAdmin ? r.assignedAdmin.username : '',
+            adminNotes: r.adminNotes || '',
+            additionalComments: r.additionalComments || '',
+            createdAt: r.createdAt ? r.createdAt.toISOString() : '',
+            statusUpdatedAt: r.statusUpdatedAt ? r.statusUpdatedAt.toISOString() : ''
+        }));
+
+        // Helper: CSV escape
+        const escapeCsv = (val) => {
+            if (val === null || val === undefined) return '';
+            const str = String(val);
+            if (str.includes('"') || str.includes(',') || str.includes('\n') || str.includes('\r')) {
+                return '"' + str.replace(/"/g, '""') + '"';
+            }
+            return str;
+        };
+
+        if (format === 'xlsx') {
+            // Try to generate XLSX using exceljs if available, else fallback to csv
+            try {
+                const ExcelJS = require('exceljs');
+                const workbook = new ExcelJS.Workbook();
+                const sheet = workbook.addWorksheet('Reports');
+
+                const headers = Object.keys(rows[0] || {});
+                sheet.addRow(headers);
+
+                rows.forEach(r => {
+                    sheet.addRow(headers.map(h => r[h]));
+                });
+
+                res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+                res.setHeader('Content-Disposition', 'attachment; filename="reports.xlsx"');
+
+                await workbook.xlsx.write(res);
+                res.end();
+                return;
+            } catch (err) {
+                console.warn('exceljs not available, falling back to CSV export', err.message);
+                // continue to CSV fallback
+            }
+        }
+
+        // CSV export
+        const headers = Object.keys(rows[0] || {});
+        const csvLines = [];
+        csvLines.push(headers.map(escapeCsv).join(','));
+        rows.forEach(r => {
+            const line = headers.map(h => escapeCsv(r[h]));
+            csvLines.push(line.join(','));
+        });
+
+        const csv = csvLines.join('\r\n');
+        res.setHeader('Content-Type', 'text/csv');
+        res.setHeader('Content-Disposition', 'attachment; filename="reports.csv"');
+        res.send(csv);
+    } catch (error) {
+        console.error('Export reports error:', error);
+        res.status(500).json({ success: false, message: 'Server error exporting reports', error: error.message });
+    }
+};
+
 module.exports = {
     getAllReports,
     updateReportStatus,
     assignReport,
     deleteReport,
     getReportStats
+    , exportReports
 };
