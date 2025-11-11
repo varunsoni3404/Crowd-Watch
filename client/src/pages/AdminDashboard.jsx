@@ -32,6 +32,30 @@ const AdminDashboard = () => {
 
   const { user, logout } = useAuth();
   const { showError, showSuccess } = useNotification();
+  
+  const downloadReports = async (format = 'csv') => {
+    try {
+      const response = await adminAPI.getExport(format);
+      const blob = new Blob([response.data], { type: response.headers['content-type'] });
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      const disposition = response.headers['content-disposition'] || '';
+      let filename = '';
+      const match = /filename\*=UTF-8''([^;]+)|filename="?([^;\"]+)"?/.exec(disposition);
+      if (match) filename = decodeURIComponent(match[1] || match[2]);
+      if (!filename) filename = `reports.${format === 'xlsx' ? 'xlsx' : 'csv'}`;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      window.URL.revokeObjectURL(url);
+      showSuccess('Download started');
+    } catch (error) {
+      console.error('Export error:', error);
+      showError('Failed to download reports');
+    }
+  };
 
   // Initial fetch
   useEffect(() => {
@@ -152,16 +176,28 @@ const AdminDashboard = () => {
             <h1 className="text-3xl font-bold text-gray-800">
               Admin Dashboard
             </h1>
-            <p className="text-gray-600">
-              Welcome, {user?.username} - Manage civic issue reports
-            </p>
+            <p className="text-gray-600">Welcome, {user?.username} - Manage civic issue reports</p>
           </div>
-          <button
-            onClick={handleLogout}
-            className="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500"
-          >
-            Logout
-          </button>
+          <div className="flex items-center space-x-3">
+            <button
+              onClick={() => downloadReports('csv')}
+              className="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500"
+            >
+              Download Reports
+            </button>
+            {/* <button
+              onClick={() => downloadReports('xlsx')}
+              className="bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            >
+              Download Excel
+            </button> */}
+            <button
+              onClick={handleLogout}
+              className="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500"
+            >
+              Logout
+            </button>
+          </div>
         </div>
       </div>
 

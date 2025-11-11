@@ -67,6 +67,7 @@ export const adminAPI = {
   assignReport: (id, data) => api.put(`/admin/reports/${id}/assign`, data),
   deleteReport: (id) => api.delete(`/admin/reports/${id}`),
   getStats: () => api.get('/admin/stats'),
+  getExport: (format = 'csv') => api.get(`/admin/export`, { params: { format }, responseType: 'blob' }),
 };
 
 export default api;
