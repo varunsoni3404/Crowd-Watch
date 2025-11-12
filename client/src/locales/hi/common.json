@@ -142,5 +142,25 @@
     "required": "यह फील्ड आवश्यक है",
     "minLength": "न्यूनतम लंबाई {{min}} वर्ण है",
     "maxLength": "अधिकतम लंबाई {{max}} वर्ण है"
+  },
+  "chart": {
+    "reportsByCategory": "श्रेणी के अनुसार रिपोर्टें",
+    "statusDistribution": "स्थिति वितरण",
+    "reportsOverTime": "समय के साथ रिपोर्टें",
+    "30Days": "30 दिन",
+    "noCategoryData": "कोई श्रेणी डेटा उपलब्ध नहीं",
+    "noStatusData": "कोई स्थिति डेटा उपलब्ध नहीं",
+    "noTimeData": "कोई समय-श्रृंखला डेटा उपलब्ध नहीं",
+    "count": "संख्या",
+    "reports": "रिपोर्टें",
+    "percent": "प्रतिशत"
+  },
+  "reportCard": {
+    "submitted": "जमा किया गया",
+    "updated": "अपडेट किया गया",
+    "additionalComments": "अतिरिक्त टिप्पणियाँ",
+    "adminNotes": "प्रशासक नोट्स",
+    "noReportsYet": "आपने अभी तक कोई रिपोर्ट जमा नहीं की है",
+    "deleteConfirm": "क्या आप इस रिपोर्ट को हटाना चाहते हैं?"
   }
 }

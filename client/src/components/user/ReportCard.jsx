@@ -1,6 +1,7 @@
 // src/components/user/ReportCard.js
 import React from 'react';
 import { reportsAPI } from '../../utils/api';
+import useTranslation from '../../hooks/useTranslation';
 
 const getStatusColor = (status) => {
   switch (status) {
@@ -70,17 +71,18 @@ const formatDate = (dateString) => {
 };
 
 const ReportCard = ({ report }) => {
+  const { t } = useTranslation();
   const statusColorClass = getStatusColor(report.status);
 
   const onDelete = async (reportId) => {
-    if (window.confirm('Are you sure you want to delete this report?')) {
+    if (window.confirm(t('reportCard.deleteConfirm'))) {
       try {
         await reportsAPI.deleteReport(reportId);
-        showSuccess('Report deleted successfully');
+        showSuccess(t('report.reportDeleted'));
 
       } catch (error) {
         console.error('Error deleting report:', error);
-        showError('Failed to delete report');
+        showError(t('messages.actionFailed'));
       }
     }
   };
@@ -98,9 +100,9 @@ const ReportCard = ({ report }) => {
 
           <div className="flex items-center space-x-4 mb-3">
             <span className={`px-2 py-1 text-xs font-medium rounded-full border ${statusColorClass}`}>
-              {report.status}
+              {t(`status.${report.status.charAt(0).toLowerCase() + report.status.slice(1).replace(' ', '')}`)}
             </span>
-            <span className="text-sm text-gray-500">{report.category}</span>
+            <span className="text-sm text-gray-500">{t(`categories.${report.category.toLowerCase()}`)}</span>
           </div>
 
           <p className="text-gray-700 text-sm mb-3 line-clamp-2">
@@ -110,22 +112,22 @@ const ReportCard = ({ report }) => {
           {report.additionalComments && (
             <div className="mt-2 p-2 bg-gray-50 border-l-4 border-gray-400 rounded">
               <p className="text-sm text-gray-800">
-                <span className="font-medium">Additional Comments:</span> {report.additionalComments}
+                <span className="font-medium">{t('reportCard.additionalComments')}:</span> {report.additionalComments}
               </p>
             </div>
           )}
 
           <div className="flex items-center justify-between text-sm text-gray-500">
-            <span>Submitted: {formatDate(report.createdAt)}</span>
+            <span>{t('reportCard.submitted')}: {formatDate(report.createdAt)}</span>
             {report.statusUpdatedAt && report.statusUpdatedAt !== report.createdAt && (
-              <span>Updated: {formatDate(report.statusUpdatedAt)}</span>
+              <span>{t('reportCard.updated')}: {formatDate(report.statusUpdatedAt)}</span>
             )}
           </div>
 
           {report.adminNotes && (
             <div className="mt-3 p-2 bg-blue-50 border-l-4 border-blue-400">
               <p className="text-sm text-blue-800">
-                <span className="font-medium">Admin Notes:</span> {report.adminNotes}
+                <span className="font-medium">{t('reportCard.adminNotes')}:</span> {report.adminNotes}
               </p>
             </div>
           )}
@@ -175,7 +177,7 @@ const ReportCard = ({ report }) => {
               onClick={() => onDelete(report._id)}
               className="px-3 py-1 text-sm bg-red-500 text-white rounded hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500"
             >
-              Delete
+              {t('common.delete')}
             </button> */}
           </div>
         </div>

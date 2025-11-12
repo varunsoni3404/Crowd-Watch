@@ -6,6 +6,7 @@ import {
   LineChart, Line, Legend,
   ResponsiveContainer
 } from 'recharts';
+import useTranslation from '../../hooks/useTranslation';
 
 const COLORS = {
   Potholes: '#8884d8',
@@ -39,6 +40,8 @@ const ChartCard = ({ title, children }) => (
 );
 
 const ReportsChart = ({ stats }) => {
+  const { t } = useTranslation();
+  
   if (!stats) return null;
 
   const categoryData = stats.reportsByCategory || [];
@@ -51,7 +54,7 @@ const ReportsChart = ({ stats }) => {
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
 
       {/* Reports by Category */}
-      <ChartCard title={`Reports by Category (${totalReports(categoryData)})`}>
+      <ChartCard title={`${t('chart.reportsByCategory')} (${totalReports(categoryData)})`}>
         {categoryData.length ? (
           <BarChart data={categoryData}>
             <CartesianGrid strokeDasharray="3 3" />
@@ -64,7 +67,7 @@ const ReportsChart = ({ stats }) => {
               interval={0}
             />
             <YAxis />
-            <Tooltip formatter={(v) => [`${v} reports`, 'Count']} />
+            <Tooltip formatter={(v) => [`${v} ${t('chart.reports')}`, t('chart.count')]} />
             <Bar dataKey="count">
               {categoryData.map((entry, idx) => (
                 <Cell key={idx} fill={getCategoryColor(entry._id)} />
@@ -72,12 +75,12 @@ const ReportsChart = ({ stats }) => {
             </Bar>
           </BarChart>
         ) : (
-          <p className="text-gray-500 text-sm text-center">No category data available</p>
+          <p className="text-gray-500 text-sm text-center">{t('chart.noCategoryData')}</p>
         )}
       </ChartCard>
 
       {/* Reports by Status */}
-      <ChartCard title={`Status Distribution (${totalReports(statusData)})`}>
+      <ChartCard title={`${t('chart.statusDistribution')} (${totalReports(statusData)})`}>
         {statusData.length ? (
           <PieChart>
             <Pie
@@ -97,7 +100,7 @@ const ReportsChart = ({ stats }) => {
                 <Cell key={idx} fill={getStatusColor(entry._id)} />
               ))}
             </Pie>
-            <Tooltip formatter={(v, name) => [`${v} reports`, name]} />
+            <Tooltip formatter={(v, name) => [`${v} ${t('chart.reports')}`, name]} />
             <Legend
               verticalAlign="bottom"
               align="center"
@@ -109,7 +112,7 @@ const ReportsChart = ({ stats }) => {
           </PieChart>
         ) : (
           <p className="text-gray-500 text-sm text-center">
-            No status data available
+            {t('chart.noStatusData')}
           </p>
         )}
       </ChartCard>
@@ -117,7 +120,7 @@ const ReportsChart = ({ stats }) => {
 
 
       {/* Reports Over Time */}
-      <ChartCard title="Reports Over Time (30 Days)">
+      <ChartCard title={`${t('chart.reportsOverTime')} (${t('chart.30Days')})`}>
         {timeData.length ? (
           <LineChart data={timeData}>
             <CartesianGrid strokeDasharray="3 3" />
@@ -136,7 +139,7 @@ const ReportsChart = ({ stats }) => {
             <YAxis />
             <Tooltip
               labelFormatter={(v) => new Date(v).toLocaleDateString()}
-              formatter={(val) => [`${val} reports`, 'Count']}
+              formatter={(val) => [`${val} ${t('chart.reports')}`, t('chart.count')]}
             />
             <Line
               type="monotone"
@@ -147,7 +150,7 @@ const ReportsChart = ({ stats }) => {
             />
           </LineChart>
         ) : (
-          <p className="text-gray-500 text-sm text-center">No time-series data available</p>
+          <p className="text-gray-500 text-sm text-center">{t('chart.noTimeData')}</p>
         )}
       </ChartCard>
 

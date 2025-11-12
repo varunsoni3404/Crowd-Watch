@@ -142,5 +142,25 @@
     "required": "हे क्षेत्र आवश्यक आहे",
     "minLength": "किमान लांबी {{min}} वर्ण आहे",
     "maxLength": "जास्तीत जास्त लांबी {{max}} वर्ण आहे"
+  },
+  "chart": {
+    "reportsByCategory": "श्रेणीनुसार अहवाले",
+    "statusDistribution": "स्थिती वितरण",
+    "reportsOverTime": "कालांतराने अहवाले",
+    "30Days": "३० दिवस",
+    "noCategoryData": "श्रेणी डेटा उपलब्ध नाही",
+    "noStatusData": "कोणतीही स्थिती डेटा उपलब्ध नाही",
+    "noTimeData": "कोणतीही वेळ-मालिका डेटा उपलब्ध नाही",
+    "count": "संख्या",
+    "reports": "अहवाले",
+    "percent": "टक्के"
+  },
+  "reportCard": {
+    "submitted": "सादर केले गेले",
+    "updated": "अपडेट केले गेले",
+    "additionalComments": "अतिरिक्त टिप्पणी",
+    "adminNotes": "प्रशासक नोट्स",
+    "noReportsYet": "तुम्ही अद्याप कोणतीही अहवाल सादर केली नाही",
+    "deleteConfirm": "तुम्हाला या अहवाल हटवायचे आहे का?"
   }
 }
