@@ -171,73 +171,76 @@ const AdminDashboard = () => {
   };
 
   return (
-    <div className="max-w-7xl mx-auto p-4 sm:p-6" dir={direction}>
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100" dir={direction}>
       {/* Header */}
-      <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center">
-          <div className="mb-4 sm:mb-0">
-            <h1 className="text-3xl font-bold text-gray-800">
-              {t('admin.dashboard')}
-            </h1>
-            <p className="text-gray-600">{t('messages.welcome')}, {user?.username} - {t('admin.reportManagement')}</p>
-          </div>
-          <div className="flex items-center space-x-3 flex-wrap gap-2">
-            <LanguageSwitcher />
-            <button
-              onClick={() => downloadReports('csv')}
-              className="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500"
-            >
-              {t('common.download')}
-            </button>
-            {/* <button
-              onClick={() => downloadReports('xlsx')}
-              className="bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-            >
-              {t('common.download')} Excel
-            </button> */}
-            <button
-              onClick={handleLogout}
-              className="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500"
-            >
-              {t('common.logout')}
-            </button>
+      <div className="bg-gradient-to-r from-purple-600 to-indigo-600 shadow-lg">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+            <div>
+              <h1 className="text-4xl font-bold text-white">
+                {t('admin.dashboard')}
+              </h1>
+              <p className="text-purple-100 mt-2 text-lg">{t('messages.welcome')}, <span className="font-semibold">{user?.username}</span> - {t('admin.reportManagement')}</p>
+            </div>
+            <div className="flex items-center space-x-3 flex-wrap gap-3">
+              <LanguageSwitcher />
+              <button
+                onClick={() => downloadReports('csv')}
+                className="bg-green-500 text-white px-6 py-2 rounded-lg hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-400 transition duration-200 font-semibold shadow-md hover:shadow-lg flex items-center space-x-2"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+                </svg>
+                <span>{t('common.download')}</span>
+              </button>
+              <button
+                onClick={handleLogout}
+                className="bg-red-500 text-white px-6 py-2 rounded-lg hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-400 transition duration-200 font-semibold shadow-md hover:shadow-lg"
+              >
+                {t('common.logout')}
+              </button>
+            </div>
           </div>
         </div>
       </div>
 
-      {/* Statistics Cards */}
+      {/* Main Content */}
+      <div className="max-w-7xl mx-auto p-4 sm:p-6">      {/* Statistics Cards */}
       {statsLoading ? (
-        <div className="mb-6">
+        <div className="mb-8">
           <LoadingSpinner />
         </div>
       ) : (
-        <StatsCards stats={stats} />
+        <div className="mb-8">
+          <StatsCards stats={stats} />
+        </div>
       )}
 
       {/* Charts Section */}
       {stats && !statsLoading && (
-        <div className="mb-6">
+        <div className="bg-white rounded-xl shadow-lg p-6 mb-8">
           <ReportsChart stats={stats} />
         </div>
       )}
 
       {/* Reports Management */}
-      <div className="bg-white rounded-lg shadow-md">
+      <div className="bg-white rounded-xl shadow-lg overflow-hidden">
         <div className="p-6 border-b border-gray-200">
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4">
-            <h2 className="text-xl font-semibold text-gray-900 mb-4 sm:mb-0">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6">
+            <h2 className="text-2xl font-bold text-gray-900 mb-4 sm:mb-0">
               {t('admin.allReports')}
             </h2>
             <div className="flex items-center space-x-4">
-              <div className="flex items-center space-x-2 text-sm text-gray-500">
-                <span>{t('admin.totalReports')}: {reports.length}</span>
+              <div className="flex items-center space-x-2 text-sm text-gray-600 bg-gray-50 px-3 py-2 rounded-lg">
+                <span className="font-semibold">{t('admin.totalReports')}:</span> 
+                <span className="font-bold text-lg text-indigo-600">{reports.length}</span>
               </div>
               <div className="flex bg-gray-100 rounded-lg p-1">
                 <button
                   onClick={() => setViewMode('list')}
-                  className={`px-3 py-1 text-sm rounded-md transition-colors ${
+                  className={`px-3 py-2 text-sm rounded-md transition-all font-medium ${
                     viewMode === 'list'
-                      ? 'bg-white text-gray-900 shadow-sm'
+                      ? 'bg-white text-indigo-600 shadow-sm'
                       : 'text-gray-600 hover:text-gray-900'
                   }`}
                 >
@@ -248,9 +251,9 @@ const AdminDashboard = () => {
                 </button>
                 <button
                   onClick={() => setViewMode('map')}
-                  className={`px-3 py-1 text-sm rounded-md transition-colors ${
+                  className={`px-3 py-2 text-sm rounded-md transition-all font-medium ${
                     viewMode === 'map'
-                      ? 'bg-white text-gray-900 shadow-sm'
+                      ? 'bg-white text-indigo-600 shadow-sm'
                       : 'text-gray-600 hover:text-gray-900'
                   }`}
                 >
@@ -264,7 +267,9 @@ const AdminDashboard = () => {
           </div>
 
           {/* Filter Controls */}
-          <FilterControls filters={filters} onFilterChange={handleFilterChange} />
+          <div className="bg-gray-50 p-4 rounded-lg">
+            <FilterControls filters={filters} onFilterChange={handleFilterChange} />
+          </div>
         </div>
 
         {/* Reports List or Map */}
@@ -331,6 +336,7 @@ const AdminDashboard = () => {
             </div>
           )}
         </div>
+      </div>
       </div>
     </div>
   );

@@ -29,8 +29,8 @@ const getCategoryColor = (id) => COLORS[id] || '#8884d8';
 const getStatusColor = (id) => STATUS_COLORS[id] || '#8884d8';
 
 const ChartCard = ({ title, children }) => (
-  <div className="bg-white rounded-lg shadow p-6">
-    <h3 className="text-lg font-semibold text-gray-900 mb-4">{title}</h3>
+  <div className="bg-white rounded-xl shadow-md hover:shadow-lg transition duration-300 p-6">
+    <h3 className="text-lg font-bold mb-4 text-center bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">{title}</h3>
     <div className="h-64">
       <ResponsiveContainer width="100%" height="100%">
         {children}
@@ -51,7 +51,7 @@ const ReportsChart = ({ stats }) => {
   const totalReports = (arr) => arr.reduce((sum, d) => sum + d.count, 0);
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
       {/* Reports by Category */}
       <ChartCard title={`${t('chart.reportsByCategory')} (${totalReports(categoryData)})`}>
@@ -86,7 +86,7 @@ const ReportsChart = ({ stats }) => {
             <Pie
               data={statusData}
               cx="50%"
-              cy="45%"
+              cy="50%"
               innerRadius={40}
               outerRadius={80}
               dataKey="count"

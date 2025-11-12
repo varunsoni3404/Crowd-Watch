@@ -68,15 +68,15 @@ const AdminReportCard = ({ report, onStatusUpdate, onDelete }) => {
 
   return (
     <>
-      <div className="border border-gray-200 rounded-lg p-6 hover:shadow-md transition-shadow">
+      <div className="border-l-4 border-indigo-500 rounded-lg p-6 bg-white shadow-md hover:shadow-xl transition-all duration-300">
           <div className="flex items-start justify-between">
             <div className="flex-1">
               <div className="flex items-center space-x-3 mb-2">
-                <h3 className="text-lg font-semibold text-gray-900">
+                <h3 className="text-lg font-bold text-gray-900">
                   {translatedReport.title}
-                  {isTranslating && <span className="ml-2 text-xs text-gray-400">(translating...)</span>}
+                  {isTranslating && <span className="ml-2 text-xs text-gray-400 animate-pulse">(translating...)</span>}
                 </h3>
-                <span className={`px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(translatedReport.status)}`}>
+                <span className={`px-3 py-1 text-xs font-bold rounded-full ${getStatusColor(translatedReport.status)}`}>
                   {t(`status.${translatedReport.status === 'In Progress' ? 'inProgress' : translatedReport.status.toLowerCase()}`)}
                 </span>
               </div>
