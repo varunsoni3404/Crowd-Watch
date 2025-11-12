@@ -16,13 +16,34 @@ genai.configure(api_key=api_key)
 app = Flask(__name__)
 CORS(app)
 
-
 CATEGORIES = [
     "pothole on road",
     "drainage issue",
     "garbage problem",
     "streetlight not working"
 ]
+
+# ✅ Health check route
+@app.route('/health', methods=['GET'])
+def health_check():
+    """
+    Simple route to verify that the server and Gemini API key are working.
+    """
+    try:
+        # Optional: minimal call to ensure the model is available
+        genai.GenerativeModel('gemini-2.5-flash')
+        return jsonify({
+            "status": "healthy",
+            "gemini_api_key_loaded": True,
+            "message": "Server is running and Gemini API is configured correctly."
+        }), 200
+    except Exception as e:
+        return jsonify({
+            "status": "unhealthy",
+            "gemini_api_key_loaded": bool(api_key),
+            "error": str(e)
+        }), 500
+
 
 @app.route('/report-issue', methods=['POST'])
 def report_issue():
@@ -62,6 +83,7 @@ def report_issue():
     except Exception as e:
         print(f"An error occurred: {e}")
         return jsonify({"error": "An internal error occurred"}), 500
+
 
 if __name__ == '__main__':
     app.run(debug=True, port=8080)
