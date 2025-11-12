@@ -4,21 +4,22 @@ import useTranslation from '../../hooks/useTranslation';
 const FilterControls = ({ filters, onFilterChange }) => {
   const { t } = useTranslation();
   
+  // Use database keys, not translated values!
   const CATEGORIES = [
-    t('categories.potholes'),
-    t('categories.sanitation'), 
-    t('categories.streetlights'),
-    t('categories.waterSupply'),
-    t('categories.drainage'),
-    t('categories.traffic'),
-    t('categories.parks'),
-    t('categories.other')
+    { key: 'Potholes', label: t('categories.potholes') },
+    { key: 'Sanitation', label: t('categories.sanitation') },
+    { key: 'Street Lights', label: t('categories.streetlights') },
+    { key: 'Water Supply', label: t('categories.waterSupply') },
+    { key: 'Drainage', label: t('categories.drainage') },
+    { key: 'Traffic', label: t('categories.traffic') },
+    { key: 'Parks', label: t('categories.parks') },
+    { key: 'Other', label: t('categories.other') }
   ];
 
   const STATUSES = [
-    t('status.pending'),
-    t('status.inProgress'),
-    t('status.resolved')
+    { key: 'Submitted', label: t('status.submitted') },
+    { key: 'In Progress', label: t('status.inProgress') },
+    { key: 'Resolved', label: t('status.resolved') }
   ];
 
   const handleFilterChange = (key, value) => {
@@ -39,7 +40,7 @@ const FilterControls = ({ filters, onFilterChange }) => {
         >
           <option value="">{t('common.filter')}</option>
           {STATUSES.map(status => (
-            <option key={status} value={status}>{status}</option>
+            <option key={status.key} value={status.key}>{status.label}</option>
           ))}
         </select>
       </div>
@@ -56,7 +57,7 @@ const FilterControls = ({ filters, onFilterChange }) => {
         >
           <option value="">{t('common.filter')}</option>
           {CATEGORIES.map(category => (
-            <option key={category} value={category}>{category}</option>
+            <option key={category.key} value={category.key}>{category.label}</option>
           ))}
         </select>
       </div>
