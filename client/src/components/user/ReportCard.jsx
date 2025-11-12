@@ -1,7 +1,8 @@
 // src/components/user/ReportCard.js
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { reportsAPI } from '../../utils/api';
 import useTranslation from '../../hooks/useTranslation';
+import { translateReportContent } from '../../services/translationService';
 
 const getStatusColor = (status) => {
   switch (status) {
@@ -71,8 +72,27 @@ const formatDate = (dateString) => {
 };
 
 const ReportCard = ({ report }) => {
-  const { t } = useTranslation();
-  const statusColorClass = getStatusColor(report.status);
+  const { t, language } = useTranslation();
+  const [translatedReport, setTranslatedReport] = useState(report);
+  const [isTranslating, setIsTranslating] = useState(false);
+
+  // Update translated report when report prop changes (real-time updates from socket)
+  useEffect(() => {
+    if (language === 'en') {
+      setTranslatedReport(report);
+    } else {
+      // Re-translate when report changes
+      const translateReport = async () => {
+        setIsTranslating(true);
+        const translated = await translateReportContent(report, language);
+        setTranslatedReport(translated);
+        setIsTranslating(false);
+      };
+      translateReport();
+    }
+  }, [report, language]);
+
+  const statusColorClass = getStatusColor(translatedReport.status);
 
   const onDelete = async (reportId) => {
     if (window.confirm(t('reportCard.deleteConfirm'))) {
@@ -93,51 +113,54 @@ const ReportCard = ({ report }) => {
         <div className="flex-1">
           <div className="flex items-center space-x-3 mb-2">
             <div className="flex items-center text-gray-500">
-              {getCategoryIcon(report.category)}
+              {getCategoryIcon(translatedReport.category)}
             </div>
-            <h3 className="text-lg font-semibold text-gray-900">{report.title}</h3>
+            <h3 className="text-lg font-semibold text-gray-900">
+              {translatedReport.title}
+              {isTranslating && <span className="ml-2 text-xs text-gray-400">(translating...)</span>}
+            </h3>
           </div>
 
           <div className="flex items-center space-x-4 mb-3">
             <span className={`px-2 py-1 text-xs font-medium rounded-full border ${statusColorClass}`}>
-              {t(`status.${report.status.charAt(0).toLowerCase() + report.status.slice(1).replace(' ', '')}`)}
+              {t(`status.${translatedReport.status === 'In Progress' ? 'inProgress' : translatedReport.status.toLowerCase()}`)}
             </span>
-            <span className="text-sm text-gray-500">{t(`categories.${report.category.toLowerCase()}`)}</span>
+            <span className="text-sm text-gray-500">{t(`categories.${translatedReport.category.toLowerCase()}`)}</span>
           </div>
 
           <p className="text-gray-700 text-sm mb-3 line-clamp-2">
-            {report.description}
+            {translatedReport.description}
           </p>
 
-          {report.additionalComments && (
+          {translatedReport.additionalComments && (
             <div className="mt-2 p-2 bg-gray-50 border-l-4 border-gray-400 rounded">
               <p className="text-sm text-gray-800">
-                <span className="font-medium">{t('reportCard.additionalComments')}:</span> {report.additionalComments}
+                <span className="font-medium">{t('reportCard.additionalComments')}:</span> {translatedReport.additionalComments}
               </p>
             </div>
           )}
 
           <div className="flex items-center justify-between text-sm text-gray-500">
-            <span>{t('reportCard.submitted')}: {formatDate(report.createdAt)}</span>
-            {report.statusUpdatedAt && report.statusUpdatedAt !== report.createdAt && (
-              <span>{t('reportCard.updated')}: {formatDate(report.statusUpdatedAt)}</span>
+            <span>{t('reportCard.submitted')}: {formatDate(translatedReport.createdAt)}</span>
+            {translatedReport.statusUpdatedAt && translatedReport.statusUpdatedAt !== translatedReport.createdAt && (
+              <span>{t('reportCard.updated')}: {formatDate(translatedReport.statusUpdatedAt)}</span>
             )}
           </div>
 
-          {report.adminNotes && (
+          {translatedReport.adminNotes && (
             <div className="mt-3 p-2 bg-blue-50 border-l-4 border-blue-400">
               <p className="text-sm text-blue-800">
-                <span className="font-medium">{t('reportCard.adminNotes')}:</span> {report.adminNotes}
+                <span className="font-medium">{t('reportCard.adminNotes')}:</span> {translatedReport.adminNotes}
               </p>
             </div>
           )}
         </div>
 
-        {report.photoUrl && (
+        {translatedReport.photoUrl && (
           <div className="ml-4 flex-shrink-0">
             <img
               // src={`https://sq04q0b3-5000.inc1.devtunnels.ms${report.photoUrl}`}
-              src={`${import.meta.env.VITE_BASE_URL}${report.photoUrl}`}
+              src={`${import.meta.env.VITE_BASE_URL}${translatedReport.photoUrl}`}
 
               alt="Report"
               className="w-20 h-20 object-cover rounded-md border border-gray-300"
@@ -146,7 +169,7 @@ const ReportCard = ({ report }) => {
         )}
       </div>
 
-      {report.location && (
+      {translatedReport.location && (
         <div className="mt-3 pt-3 border-t border-gray-200">
             <div className="flex items-center justify-between text-sm text-gray-500">
             <div className="flex items-center">
@@ -169,8 +192,8 @@ const ReportCard = ({ report }) => {
                   d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
                 />
               </svg>
-              {report.location.address ||
-                `${report.location.latitude.toFixed(4)}, ${report.location.longitude.toFixed(4)}`}
+              {translatedReport.location.address ||
+                `${translatedReport.location.latitude.toFixed(4)}, ${translatedReport.location.longitude.toFixed(4)}`}
             </div>
 
             {/* <button

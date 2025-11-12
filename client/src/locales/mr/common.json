@@ -24,9 +24,11 @@
     "reset": "रीसेट करा",
     "download": "डाउनलोड",
     "upload": "अपलोड",
-    "yes": "होय",
+    "yes": "हो",
     "no": "नाही",
-    "confirm": "पुष्टी करा"
+    "confirm": "पुष्टि करा",
+    "show": "दर्शवा",
+    "hide": "लपवा"
   },
   "auth": {
     "login": "लॉगिन",
@@ -68,13 +70,15 @@
     "statistics": "आकडेवारी",
     "analytics": "विश्लेषण",
     "settings": "सेटिंग्ज",
-    "totalReports": "एकूण अहवाल",
-    "resolvedReports": "सुटलेले अहवाल",
-    "pendingReports": "प्रलंबित अहवाल",
-    "inProgressReports": "चालू अहवाल",
-    "rejectedReports": "नाकारलेले अहवाल",
+    "totalReports": "एकूण अहवाले",
+    "resolvedReports": "सोडवलेल्या अहवाले",
+    "pendingReports": "प्रलंबित अहवाले",
+    "inProgressReports": "चालू अहवाले",
+    "rejectedReports": "नाकारलेल्या अहवाले",
     "totalUsers": "एकूण वापरकर्ते",
-    "export": "अहवाल निर्यात करा"
+    "export": "अहवाल निर्यात करा",
+    "updateStatus": "अहवाल स्थिती अपडेट करा",
+    "assigned": "ला नियुक्त केले"
   },
   "report": {
     "title": "शीर्षक",
@@ -103,6 +107,7 @@
     "photos": "फोटो"
   },
   "status": {
+    "submitted": "सादर केले गेले",
     "pending": "प्रलंबित",
     "inProgress": "चालू आहे",
     "resolved": "समाधान झाले",
@@ -162,5 +167,10 @@
     "adminNotes": "प्रशासक नोट्स",
     "noReportsYet": "तुम्ही अद्याप कोणतीही अहवाल सादर केली नाही",
     "deleteConfirm": "तुम्हाला या अहवाल हटवायचे आहे का?"
+  },
+  "adminNotes": {
+    "label": "प्रशासक नोट्स",
+    "placeholder": "या अहवालासाठी प्रशासकीय नोट्स प्रविष्ट करा",
+    "noNotes": "अद्याप कोणते प्रशासक नोट्स नाही"
   }
 }
