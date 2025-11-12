@@ -52,7 +52,8 @@
     "fillAllFields": "Please fill in all fields",
     "passwordsDoNotMatch": "Passwords do not match",
     "loginFailed": "Login failed. Please try again.",
-    "invalidEmail": "Invalid email format"
+    "invalidEmail": "Invalid email format",
+    "role": "Role"
   },
   "user": {
     "dashboard": "User Dashboard",
@@ -147,6 +148,10 @@
     "required": "This field is required",
     "minLength": "Minimum length is {{min}} characters",
     "maxLength": "Maximum length is {{max}} characters"
+  },
+  "roles": {
+    "user": "User",
+    "admin": "Admin"
   },
   "chart": {
     "reportsByCategory": "Reports by Category",

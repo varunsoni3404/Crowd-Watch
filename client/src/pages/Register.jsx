@@ -170,7 +170,7 @@ const Register = () => {
 
             <div>
               <label htmlFor="role" className="block text-sm font-medium text-gray-700">
-                {t('user.profile')}
+                {t('auth.role')}
               </label>
               <select
                 id="role"
@@ -179,8 +179,8 @@ const Register = () => {
                 value={formData.role}
                 onChange={handleChange}
               >
-                <option value="user">{t('user.dashboard')}</option>
-                {/* <option value="admin">{t('admin.dashboard')}</option> */}
+                <option value="user">{t('roles.user')}</option>
+                <option value="admin">{t('roles.admin')}</option>
               </select>
             </div>
           </div>

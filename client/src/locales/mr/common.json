@@ -52,7 +52,8 @@
     "fillAllFields": "कृपया सर्व फील्ड भरा",
     "passwordsDoNotMatch": "पासवर्ड जुळत नाही",
     "loginFailed": "लॉगिन अयशस्वी. कृपया पुन्हा प्रयत्न करा.",
-    "invalidEmail": "अमान्य ईमेल स्वरूप"
+    "invalidEmail": "अमान्य ईमेल स्वरूप",
+    "role": "भूमिका"
   },
   "user": {
     "dashboard": "वापरकर्ता डॅशबोर्ड",
@@ -147,6 +148,10 @@
     "required": "हे क्षेत्र आवश्यक आहे",
     "minLength": "किमान लांबी {{min}} वर्ण आहे",
     "maxLength": "जास्तीत जास्त लांबी {{max}} वर्ण आहे"
+  },
+  "roles": {
+    "user": "वापरकर्ता",
+    "admin": "प्रशासक"
   },
   "chart": {
     "reportsByCategory": "श्रेणीनुसार अहवाले",
