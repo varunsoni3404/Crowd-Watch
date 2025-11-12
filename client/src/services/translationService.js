@@ -1,7 +1,7 @@
 // Translation Service using Google Translate API
 // This service translates report content to different languages
 
-const GOOGLE_TRANSLATE_API_KEY = 'AIzaSyDnN-tXy6tXvXdXk3pXmXnXoXpXqXrXsXt'; // Placeholder - will use free method
+const GOOGLE_TRANSLATE_API_KEY = '';
 
 // Language codes for Google Translate
 const LANGUAGE_CODES = {
