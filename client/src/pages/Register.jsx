@@ -3,6 +3,8 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useNotification } from '../context/NotificationContext';
+import useTranslation from '../hooks/useTranslation';
+import LanguageSwitcher from '../components/common/LanguageSwitcher';
 
 const Register = () => {
   const [formData, setFormData] = useState({
@@ -15,6 +17,7 @@ const Register = () => {
 
   const { register, loading, error, isAuthenticated, user, clearError } = useAuth();
   const { showSuccess, showError } = useNotification();
+  const { t, direction } = useTranslation();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -40,28 +43,28 @@ const Register = () => {
 
   const validateForm = () => {
     if (!formData.username || !formData.email || !formData.password) {
-      showError('Please fill in all required fields');
+      showError(t('messages.fieldRequired'));
       return false;
     }
 
     if (formData.username.length < 3) {
-      showError('Username must be at least 3 characters long');
+      showError(t('validation.minLength').replace('{{min}}', '3'));
       return false;
     }
 
     if (formData.password.length < 6) {
-      showError('Password must be at least 6 characters long');
+      showError(t('validation.passwordTooShort'));
       return false;
     }
 
     if (formData.password !== formData.confirmPassword) {
-      showError('Passwords do not match');
+      showError(t('auth.passwordsDoNotMatch'));
       return false;
     }
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(formData.email)) {
-      showError('Please enter a valid email address');
+      showError(t('validation.emailInvalid'));
       return false;
     }
 
@@ -77,19 +80,22 @@ const Register = () => {
     const result = await register(userData);
 
     if (result.success) {
-      showSuccess('Registration successful! Welcome!');
+      showSuccess(t('auth.registrationSuccessful'));
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8" dir={direction}>
+      <div className="absolute top-4 right-4">
+        <LanguageSwitcher />
+      </div>
       <div className="max-w-md w-full space-y-8">
         <div>
           <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-            Create Your Account
+            {t('auth.createNewAccount')}
           </h2>
           <p className="mt-2 text-center text-sm text-gray-600">
-            Join the civic reporting system
+            {t('app.tagline')}
           </p>
         </div>
 
@@ -97,7 +103,7 @@ const Register = () => {
           <div className="space-y-4">
             <div>
               <label htmlFor="username" className="block text-sm font-medium text-gray-700">
-                Username
+                {t('auth.name')}
               </label>
               <input
                 id="username"
@@ -105,7 +111,7 @@ const Register = () => {
                 type="text"
                 required
                 className="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                placeholder="Enter your username"
+                placeholder={t('auth.name')}
                 value={formData.username}
                 onChange={handleChange}
               />
@@ -113,7 +119,7 @@ const Register = () => {
 
             <div>
               <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-                Email Address
+                {t('auth.email')}
               </label>
               <input
                 id="email"
@@ -122,7 +128,7 @@ const Register = () => {
                 autoComplete="email"
                 required
                 className="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                placeholder="Enter your email"
+                placeholder={t('auth.email')}
                 value={formData.email}
                 onChange={handleChange}
               />
@@ -130,7 +136,7 @@ const Register = () => {
 
             <div>
               <label htmlFor="password" className="block text-sm font-medium text-gray-700">
-                Password
+                {t('auth.password')}
               </label>
               <input
                 id="password"
@@ -139,7 +145,7 @@ const Register = () => {
                 autoComplete="new-password"
                 required
                 className="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                placeholder="Enter your password"
+                placeholder={t('auth.password')}
                 value={formData.password}
                 onChange={handleChange}
               />
@@ -147,7 +153,7 @@ const Register = () => {
 
             <div>
               <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700">
-                Confirm Password
+                {t('auth.confirmPassword')}
               </label>
               <input
                 id="confirmPassword"
@@ -156,7 +162,7 @@ const Register = () => {
                 autoComplete="new-password"
                 required
                 className="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                placeholder="Confirm your password"
+                placeholder={t('auth.confirmPassword')}
                 value={formData.confirmPassword}
                 onChange={handleChange}
               />
@@ -164,7 +170,7 @@ const Register = () => {
 
             <div>
               <label htmlFor="role" className="block text-sm font-medium text-gray-700">
-                Account Type
+                {t('user.profile')}
               </label>
               <select
                 id="role"
@@ -173,8 +179,8 @@ const Register = () => {
                 value={formData.role}
                 onChange={handleChange}
               >
-                <option value="user">Citizen (User)</option>
-                {/* <option value="admin">Municipal Admin</option> */}
+                <option value="user">{t('user.dashboard')}</option>
+                {/* <option value="admin">{t('admin.dashboard')}</option> */}
               </select>
             </div>
           </div>
@@ -185,7 +191,7 @@ const Register = () => {
               disabled={loading}
               className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
             >
-              {loading ? 'Creating Account...' : 'Create Account'}
+              {loading ? t('common.loading') : t('auth.register')}
             </button>
           </div>
 
@@ -194,7 +200,7 @@ const Register = () => {
               to="/login"
               className="text-blue-600 hover:text-blue-500"
             >
-              Already have an account? Sign in
+              {t('auth.alreadyHaveAccount')} <span className="font-semibold">{t('auth.login')}</span>
             </Link>
           </div>
         </form>

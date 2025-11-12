@@ -1,11 +1,14 @@
 import React from 'react';
+import useTranslation from '../../hooks/useTranslation';
 
 const StatsCards = ({ stats }) => {
+  const { t } = useTranslation();
+  
   if (!stats) return null;
 
   const statItems = [
     {
-      name: 'Total Reports',
+      name: t('admin.totalReports'),
       value: stats.totalReports,
       icon: (
         <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -15,7 +18,7 @@ const StatsCards = ({ stats }) => {
       color: 'text-blue-600 bg-blue-100'
     },
     {
-      name: 'Submitted',
+      name: t('admin.pendingReports'),
       value: stats.submittedReports,
       icon: (
         <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -25,7 +28,7 @@ const StatsCards = ({ stats }) => {
       color: 'text-yellow-600 bg-yellow-100'
     },
     {
-      name: 'In Progress',
+      name: t('admin.inProgressReports'),
       value: stats.inProgressReports,
       icon: (
         <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -35,7 +38,7 @@ const StatsCards = ({ stats }) => {
       color: 'text-orange-600 bg-orange-100'
     },
     {
-      name: 'Resolved',
+      name: t('admin.resolvedReports'),
       value: stats.resolvedReports,
       icon: (
         <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">

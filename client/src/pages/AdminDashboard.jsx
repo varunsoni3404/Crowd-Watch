@@ -3,12 +3,14 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNotification } from '../context/NotificationContext';
 import { adminAPI } from '../utils/api';
+import useTranslation from '../hooks/useTranslation';
 import LoadingSpinner from '../components/common/LoadingSpinner';
 import AdminReportCard from '../components/admin/AdminReportCard';
 import StatsCards from '../components/admin/StatsCards';
 import ReportsChart from '../components/admin/ReportsChart';
 import FilterControls from '../components/admin/FilterControls';
 import ReportsMap from '../components/admin/ReportsMap';
+import LanguageSwitcher from '../components/common/LanguageSwitcher';
 import io from 'socket.io-client';
 
 const socket = io(import.meta.env.VITE_BASE_URL);
@@ -32,6 +34,7 @@ const AdminDashboard = () => {
 
   const { user, logout } = useAuth();
   const { showError, showSuccess } = useNotification();
+  const { t, direction } = useTranslation();
   
   const downloadReports = async (format = 'csv') => {
     try {
@@ -50,10 +53,10 @@ const AdminDashboard = () => {
       a.click();
       a.remove();
       window.URL.revokeObjectURL(url);
-      showSuccess('Download started');
+      showSuccess(t('messages.actionSuccessful'));
     } catch (error) {
       console.error('Export error:', error);
-      showError('Failed to download reports');
+      showError(t('messages.actionFailed'));
     }
   };
 
@@ -108,7 +111,7 @@ const AdminDashboard = () => {
       setReports(response.data.reports);
     } catch (error) {
       console.error('Error fetching reports:', error);
-      showError('Failed to fetch reports');
+      showError(t('report.noReportsFound'));
     } finally {
       setLoading(false);
     }
@@ -121,7 +124,7 @@ const AdminDashboard = () => {
       setStats(response.data.stats);
     } catch (error) {
       console.error('Error fetching stats:', error);
-      showError('Failed to fetch statistics');
+      showError(t('admin.statistics'));
     } finally {
       setStatsLoading(false);
     }
@@ -134,23 +137,23 @@ const AdminDashboard = () => {
         adminNotes,
       });
 
-      showSuccess('Report status updated successfully');
+      showSuccess(t('messages.actionSuccessful'));
 
     } catch (error) {
       console.error('Error updating status:', error);
-      showError('Failed to update report status');
+      showError(t('messages.actionFailed'));
     }
   };
 
   const handleDeleteReport = async (reportId) => {
-    if (window.confirm('Are you sure you want to delete this report?')) {
+    if (window.confirm(t('report.confirmDelete'))) {
       try {
         await adminAPI.deleteReport(reportId);
-        showSuccess('Report deleted successfully');
+        showSuccess(t('report.reportDeleted'));
 
       } catch (error) {
         console.error('Error deleting report:', error);
-        showError('Failed to delete report');
+        showError(t('messages.actionFailed'));
       }
     }
   };
@@ -168,34 +171,35 @@ const AdminDashboard = () => {
   };
 
   return (
-    <div className="max-w-7xl mx-auto p-4 sm:p-6">
+    <div className="max-w-7xl mx-auto p-4 sm:p-6" dir={direction}>
       {/* Header */}
       <div className="bg-white rounded-lg shadow-md p-6 mb-6">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center">
           <div className="mb-4 sm:mb-0">
             <h1 className="text-3xl font-bold text-gray-800">
-              Admin Dashboard
+              {t('admin.dashboard')}
             </h1>
-            <p className="text-gray-600">Welcome, {user?.username} - Manage civic issue reports</p>
+            <p className="text-gray-600">{t('messages.welcome')}, {user?.username} - {t('admin.reportManagement')}</p>
           </div>
-          <div className="flex items-center space-x-3">
+          <div className="flex items-center space-x-3 flex-wrap gap-2">
+            <LanguageSwitcher />
             <button
               onClick={() => downloadReports('csv')}
               className="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500"
             >
-              Download Reports
+              {t('common.download')}
             </button>
             {/* <button
               onClick={() => downloadReports('xlsx')}
               className="bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"
             >
-              Download Excel
+              {t('common.download')} Excel
             </button> */}
             <button
               onClick={handleLogout}
               className="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500"
             >
-              Logout
+              {t('common.logout')}
             </button>
           </div>
         </div>
@@ -222,11 +226,11 @@ const AdminDashboard = () => {
         <div className="p-6 border-b border-gray-200">
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4">
             <h2 className="text-xl font-semibold text-gray-900 mb-4 sm:mb-0">
-              All Reports
+              {t('admin.allReports')}
             </h2>
             <div className="flex items-center space-x-4">
               <div className="flex items-center space-x-2 text-sm text-gray-500">
-                <span>Total: {reports.length} reports</span>
+                <span>{t('admin.totalReports')}: {reports.length}</span>
               </div>
               <div className="flex bg-gray-100 rounded-lg p-1">
                 <button
@@ -240,7 +244,7 @@ const AdminDashboard = () => {
                   <svg className="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 10h16M4 14h16M4 18h16" />
                   </svg>
-                  List
+                  {t('common.search')}
                 </button>
                 <button
                   onClick={() => setViewMode('map')}
@@ -253,7 +257,7 @@ const AdminDashboard = () => {
                   <svg className="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                   </svg>
-                  Map
+                  {t('report.viewMap')}
                 </button>
               </div>
             </div>
@@ -317,12 +321,12 @@ const AdminDashboard = () => {
                 />
               </svg>
               <h3 className="mt-2 text-sm font-medium text-gray-900">
-                No reports found
+                {t('report.noReportsFound')}
               </h3>
               <p className="mt-1 text-sm text-gray-500">
                 {filters.status || filters.category
-                  ? 'Try adjusting your filters to see more reports.'
-                  : 'No reports have been submitted yet.'}
+                  ? t('messages.tryAgain')
+                  : t('messages.welcome')}
               </p>
             </div>
           )}

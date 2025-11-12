@@ -1,19 +1,26 @@
 import React from 'react';
-
-const CATEGORIES = [
-  'Potholes',
-  'Sanitation', 
-  'Streetlights',
-  'Water Supply',
-  'Drainage',
-  'Traffic',
-  'Parks',
-  'Other'
-];
-
-const STATUSES = ['Submitted', 'In Progress', 'Resolved'];
+import useTranslation from '../../hooks/useTranslation';
 
 const FilterControls = ({ filters, onFilterChange }) => {
+  const { t } = useTranslation();
+  
+  const CATEGORIES = [
+    t('categories.potholes'),
+    t('categories.sanitation'), 
+    t('categories.streetlights'),
+    t('categories.waterSupply'),
+    t('categories.drainage'),
+    t('categories.traffic'),
+    t('categories.parks'),
+    t('categories.other')
+  ];
+
+  const STATUSES = [
+    t('status.pending'),
+    t('status.inProgress'),
+    t('status.resolved')
+  ];
+
   const handleFilterChange = (key, value) => {
     onFilterChange({ [key]: value });
   };
@@ -23,14 +30,14 @@ const FilterControls = ({ filters, onFilterChange }) => {
       {/* Status Filter */}
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-1">
-          Status
+          {t('report.status')}
         </label>
         <select
           value={filters.status}
           onChange={(e) => handleFilterChange('status', e.target.value)}
           className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
         >
-          <option value="">All Statuses</option>
+          <option value="">{t('common.filter')}</option>
           {STATUSES.map(status => (
             <option key={status} value={status}>{status}</option>
           ))}
@@ -40,14 +47,14 @@ const FilterControls = ({ filters, onFilterChange }) => {
       {/* Category Filter */}
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-1">
-          Category
+          {t('report.category')}
         </label>
         <select
           value={filters.category}
           onChange={(e) => handleFilterChange('category', e.target.value)}
           className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
         >
-          <option value="">All Categories</option>
+          <option value="">{t('common.filter')}</option>
           {CATEGORIES.map(category => (
             <option key={category} value={category}>{category}</option>
           ))}
@@ -57,13 +64,13 @@ const FilterControls = ({ filters, onFilterChange }) => {
       {/* Location Filter */}
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-1">
-          Location
+          {t('report.location')}
         </label>
         <input
           type="text"
           value={filters.location || ""}
           onChange={(e) => handleFilterChange("location", e.target.value)}
-          placeholder="Search locality, city, state..."
+          placeholder={t('report.selectLocation')}
           className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
         />
       </div>
@@ -71,32 +78,32 @@ const FilterControls = ({ filters, onFilterChange }) => {
       {/* Sort By */}
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-1">
-          Sort By
+          {t('common.search')}
         </label>
         <select
           value={filters.sortBy}
           onChange={(e) => handleFilterChange('sortBy', e.target.value)}
           className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
         >
-          <option value="createdAt">Date Created</option>
-          <option value="statusUpdatedAt">Last Updated</option>
-          <option value="title">Title</option>
-          <option value="status">Status</option>
+          <option value="createdAt">{t('report.createdAt')}</option>
+          <option value="statusUpdatedAt">{t('report.updatedAt')}</option>
+          <option value="title">{t('report.title')}</option>
+          <option value="status">{t('report.status')}</option>
         </select>
       </div>
 
       {/* Sort Order */}
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-1">
-          Order
+          {t('common.filter')}
         </label>
         <select
           value={filters.sortOrder}
           onChange={(e) => handleFilterChange('sortOrder', e.target.value)}
           className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
         >
-          <option value="desc">Newest First</option>
-          <option value="asc">Oldest First</option>
+          <option value="desc">{t('report.createdAt')}</option>
+          <option value="asc">{t('report.updatedAt')}</option>
         </select>
       </div>
     </div>

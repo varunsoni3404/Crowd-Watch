@@ -1,13 +1,26 @@
 import React from 'react';
-import { CATEGORIES } from '../../constants/reportCategories';
+import useTranslation from '../../hooks/useTranslation';
 
 const BasicInfoSection = ({ formData, onChange }) => {
+  const { t } = useTranslation();
+  
+  const CATEGORIES = [
+    { key: 'potholes', label: t('categories.potholes') },
+    { key: 'sanitation', label: t('categories.sanitation') },
+    { key: 'streetlights', label: t('categories.streetlights') },
+    { key: 'waterSupply', label: t('categories.waterSupply') },
+    { key: 'drainage', label: t('categories.drainage') },
+    { key: 'traffic', label: t('categories.traffic') },
+    { key: 'parks', label: t('categories.parks') },
+    { key: 'other', label: t('categories.other') },
+  ];
+
   return (
     <>
       {/* Title */}
       <div>
         <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-1">
-          Issue Title *
+          {t('report.title')} *
         </label>
         <input
           type="text"
@@ -17,13 +30,13 @@ const BasicInfoSection = ({ formData, onChange }) => {
           required
           maxLength="200"
           className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-          placeholder="Brief title describing the issue"
+          placeholder={t('report.title')}
           value={formData.title}
           onChange={onChange}
         />
         {formData.title && (
           <p className="text-sm text-green-600 mt-1">
-            ✓ Auto-generated from image analysis
+            ✓ {t('messages.actionSuccessful')}
           </p>
         )}
       </div>
@@ -31,7 +44,7 @@ const BasicInfoSection = ({ formData, onChange }) => {
       {/* Category */}
       <div>
         <label htmlFor="category" className="block text-sm font-medium text-gray-700 mb-1">
-          Category *
+          {t('report.category')} *
         </label>
         <select
           id="category"
@@ -42,16 +55,16 @@ const BasicInfoSection = ({ formData, onChange }) => {
           value={formData.category}
           onChange={onChange}
         >
-          <option value="">Select a category</option>
-          {CATEGORIES.map(category => (
-            <option key={category} value={category}>
-              {category}
+          <option value="">{t('report.category')}</option>
+          {CATEGORIES.map(cat => (
+            <option key={cat.key} value={cat.label}>
+              {cat.label}
             </option>
           ))}
         </select>
         {formData.category && (
           <p className="text-sm text-green-600 mt-1">
-            ✓ Auto-detected from image analysis
+            ✓ {t('messages.actionSuccessful')}
           </p>
         )}
       </div>
@@ -59,7 +72,7 @@ const BasicInfoSection = ({ formData, onChange }) => {
       {/* Description */}
       <div>
         <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-1">
-          Description *
+          {t('report.description')} *
         </label>
         <textarea
           id="description"
@@ -68,7 +81,7 @@ const BasicInfoSection = ({ formData, onChange }) => {
           disabled
           maxLength="1000"
           className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-          placeholder="Provide detailed description of the issue..."
+          placeholder={t('report.description')}
           value={formData.description}
           onChange={onChange}
         />
@@ -78,7 +91,7 @@ const BasicInfoSection = ({ formData, onChange }) => {
           </p>
           {formData.description && (
             <p className="text-sm text-green-600">
-              ✓ Auto-generated from image analysis
+              ✓ {t('messages.actionSuccessful')}
             </p>
           )}
         </div>
@@ -87,7 +100,7 @@ const BasicInfoSection = ({ formData, onChange }) => {
     {/* Additional Comments */}
     <div>
       <label htmlFor="additionalComments" className="block text-sm font-medium text-gray-700 mb-1">
-        Additional Comments
+        {t('messages.welcome')}
       </label>
       <textarea
         id="additionalComments"
@@ -95,7 +108,7 @@ const BasicInfoSection = ({ formData, onChange }) => {
         rows="3"
         maxLength="1000"
         className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-        placeholder="Any extra information or comments..."
+        placeholder={t('messages.welcome')}
         value={formData.additionalComments}
         onChange={onChange}
       />

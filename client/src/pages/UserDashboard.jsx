@@ -4,9 +4,11 @@ import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useNotification } from '../context/NotificationContext';
 import { reportsAPI } from '../utils/api';
+import useTranslation from '../hooks/useTranslation';
 import LoadingSpinner from '../components/common/LoadingSpinner';
 import ReportCard from '../components/user/ReportCard';
 import ReportsMap from '../components/admin/ReportsMap';
+import LanguageSwitcher from '../components/common/LanguageSwitcher';
 import socket from '../utils/socket';
 
 const UserDashboard = () => {
@@ -22,6 +24,7 @@ const UserDashboard = () => {
 
   const { user, logout } = useAuth();
   const { showError } = useNotification();
+  const { t, direction } = useTranslation();
 
   useEffect(() => {
     fetchUserReports();
@@ -67,7 +70,7 @@ const UserDashboard = () => {
       setReports(response.data.reports);
     } catch (error) {
       console.error('Error fetching reports:', error);
-      showError('Failed to fetch reports');
+      showError(t('report.noReportsFound'));
     } finally {
       setLoading(false);
     }
@@ -82,28 +85,31 @@ const UserDashboard = () => {
   }
 
   return (
-    <div className="max-w-6xl mx-auto p-4 sm:p-6">
+    <div className="max-w-6xl mx-auto p-4 sm:p-6" dir={direction}>
       {/* Header */}
       <div className="bg-white rounded-lg shadow-md p-6 mb-6">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center">
           <div className="mb-4 sm:mb-0">
             <h1 className="text-2xl font-bold text-gray-800">
-              Welcome, {user?.username}
+              {t('messages.welcome')}, {user?.username}
             </h1>
-            <p className="text-gray-600">Civic Issue Reporting Dashboard</p>
+            <p className="text-gray-600">{t('user.dashboard')}</p>
           </div>
-          <button
-            onClick={handleLogout}
-            className="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500"
-          >
-            Logout
-          </button>
+          <div className="flex items-center space-x-3 flex-wrap gap-2">
+            <LanguageSwitcher />
+            <button
+              onClick={handleLogout}
+              className="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500"
+            >
+              {t('common.logout')}
+            </button>
+          </div>
         </div>
       </div>
 
       {/* Quick Action Button */}
       <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-        <h2 className="text-xl font-semibold mb-4">Quick Actions</h2>
+        <h2 className="text-xl font-semibold mb-4">{t('common.search')}</h2>
         <Link
           to="/report"
           className="inline-flex items-center bg-blue-500 text-white px-6 py-3 rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-200"
@@ -111,7 +117,7 @@ const UserDashboard = () => {
           <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
           </svg>
-          Report New Issue
+          {t('user.reportIssue')}
         </Link>
       </div>
 
@@ -125,7 +131,7 @@ const UserDashboard = () => {
               </svg>
             </div>
             <div className="ml-4">
-              <h3 className="text-sm font-medium text-gray-600">Total Reports</h3>
+              <h3 className="text-sm font-medium text-gray-600">{t('admin.totalReports')}</h3>
               <p className="text-2xl font-bold text-gray-900">{stats.total}</p>
             </div>
           </div>
@@ -139,7 +145,7 @@ const UserDashboard = () => {
               </svg>
             </div>
             <div className="ml-4">
-              <h3 className="text-sm font-medium text-gray-600">Submitted</h3>
+              <h3 className="text-sm font-medium text-gray-600">{t('admin.pendingReports')}</h3>
               <p className="text-2xl font-bold text-yellow-600">{stats.submitted}</p>
             </div>
           </div>
@@ -153,7 +159,7 @@ const UserDashboard = () => {
               </svg>
             </div>
             <div className="ml-4">
-              <h3 className="text-sm font-medium text-gray-600">In Progress</h3>
+              <h3 className="text-sm font-medium text-gray-600">{t('admin.inProgressReports')}</h3>
               <p className="text-2xl font-bold text-orange-600">{stats.inProgress}</p>
             </div>
           </div>
@@ -167,7 +173,7 @@ const UserDashboard = () => {
               </svg>
             </div>
             <div className="ml-4">
-              <h3 className="text-sm font-medium text-gray-600">Resolved</h3>
+              <h3 className="text-sm font-medium text-gray-600">{t('admin.resolvedReports')}</h3>
               <p className="text-2xl font-bold text-green-600">{stats.resolved}</p>
             </div>
           </div>
@@ -178,13 +184,13 @@ const UserDashboard = () => {
       <div className="bg-white rounded-lg shadow-md">
         <div className="p-6 border-b border-gray-200">
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4">
-            <h2 className="text-xl font-semibold text-gray-900 mb-4 sm:mb-0">Your Reports</h2>
+            <h2 className="text-xl font-semibold text-gray-900 mb-4 sm:mb-0">{t('user.myReports')}</h2>
             
             {/* View Mode Toggle - Only show if there are reports */}
             {reports.length > 0 && (
               <div className="flex items-center space-x-4">
                 <div className="flex items-center space-x-2 text-sm text-gray-500">
-                  <span>Total: {reports.length} reports</span>
+                  <span>{t('admin.totalReports')}: {reports.length}</span>
                 </div>
                 <div className="flex bg-gray-100 rounded-lg p-1">
                   <button
@@ -198,7 +204,7 @@ const UserDashboard = () => {
                     <svg className="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 10h16M4 14h16M4 18h16" />
                     </svg>
-                    List
+                    {t('common.search')}
                   </button>
                   <button
                     onClick={() => setViewMode('map')}
@@ -211,7 +217,7 @@ const UserDashboard = () => {
                     <svg className="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                     </svg>
-                    Map
+                    {t('report.viewMap')}
                   </button>
                 </div>
               </div>
