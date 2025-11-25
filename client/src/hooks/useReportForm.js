@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { reportsAPI } from '../utils/api';
 import { analyzeIssue } from '../services/classificationService';
 import { reverseGeocode } from '../services/locationService';
+import { extractLocationFromImage } from '../utils/exifHelper';
 
 export const useReportForm = ({ showSuccess, showError, navigate }) => {
   const [formData, setFormData] = useState({
@@ -54,6 +55,9 @@ export const useReportForm = ({ showSuccess, showError, navigate }) => {
     createPhotoPreview(file);
     setIsAnalyzed(false);
     
+    // Extract GPS data from EXIF before analyzing
+    await extractGPSFromPhoto(file);
+    
     await analyzeAndPopulateForm(file);
   };
 
@@ -63,6 +67,35 @@ export const useReportForm = ({ showSuccess, showError, navigate }) => {
       setPhotoPreview(reader.result);
     };
     reader.readAsDataURL(file);
+  };
+
+  const extractGPSFromPhoto = async (file) => {
+    try {
+      const locationData = await extractLocationFromImage(file);
+      
+      if (locationData.hasGPS && locationData.latitude && locationData.longitude) {
+        setFormData(prev => ({
+          ...prev,
+          latitude: locationData.latitude.toString(),
+          longitude: locationData.longitude.toString()
+        }));
+
+        // Perform reverse geocoding to get address
+        try {
+          const address = await reverseGeocode(locationData.latitude, locationData.longitude);
+          if (address) {
+            setFormData(prev => ({ ...prev, address }));
+          }
+          showSuccess('Location extracted from photo metadata');
+        } catch (error) {
+          console.error('Reverse geocoding failed:', error);
+          showSuccess('Location coordinates extracted from photo');
+        }
+      }
+    } catch (error) {
+      console.error('Error extracting GPS from photo:', error);
+      // Silently fail - user can still manually add location
+    }
   };
 
   const analyzeAndPopulateForm = async (file) => {
